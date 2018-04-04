@@ -1,0 +1,3 @@
+[submodule "fwdpp"]
+	path = fwdpp
+	url = https://github.com/molpopgen/fwdpp.git
