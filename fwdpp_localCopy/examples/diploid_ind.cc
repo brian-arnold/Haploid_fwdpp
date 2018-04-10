@@ -129,7 +129,7 @@ main(int argc, char **argv)
                           multiplicative
                           models are very common in population genetics
                         */
-                        fwdpp::multiplicative_diploid(), pop.neutral,
+                        fwdpp::additive_diploid(), pop.neutral,
                         pop.selected);
                     fwdpp::update_mutations(pop.mutations, pop.fixations,
                                             pop.fixation_times, pop.mut_lookup,

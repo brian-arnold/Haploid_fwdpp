@@ -11,9 +11,9 @@
 #include <iostream>
 #include <type_traits>
 #include <vector>
-#ifdef HAVE_LIBSEQUENCE
+//#ifdef HAVE_LIBSEQUENCE
 #include <Sequence/SimData.hpp>
-#endif
+//#endif
 #include <fwdpp/diploid.hh>
 #include <fwdpp/recbinder.hpp>
 #include <fwdpp/sugar/popgenmut.hpp>
@@ -68,7 +68,7 @@ main(int argc, char **argv)
     // recombination map is uniform[0,1)
     const auto rec
         = fwdpp::recbinder(fwdpp::poisson_xover(littler, 0., 1.), r.get());
-
+    std::cout << "starting" << "\n" ;
     while (nreps--)
         {
             singlepop_t pop(N);
@@ -136,7 +136,7 @@ main(int argc, char **argv)
                                             pop.mcounts, generation, twoN);
                     assert(fwdpp::check_sum(pop.gametes, twoN));
                 }
-
+		std::cout << "made it!" << "\n" ;
             // Take a sample of size samplesize1 from the population
             std::vector<std::pair<double, std::string>> mslike
                 = fwdpp::ms_sample(r.get(), pop.mutations, pop.gametes,
@@ -144,7 +144,7 @@ main(int argc, char **argv)
 
 // Write the sample date a to libsequence's Sequence::SimData and
 // print to screen
-#ifdef HAVE_LIBSEQUENCE
+//#ifdef HAVE_LIBSEQUENCE
             Sequence::SimData sdata;
             if (!mslike.empty())
                 {
@@ -155,7 +155,7 @@ main(int argc, char **argv)
                 {
                     std::cout << "//\nsegsites: 0\n";
                 }
-#endif
+//#endif
         }
     return 0;
 }

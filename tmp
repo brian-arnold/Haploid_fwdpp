@@ -1,7 +1,7 @@
 #ifndef __FWDPP_EXAMPLES_COMMON_IND_HPP__
 #define __FWDPP_EXAMPLES_COMMON_IND_HPP__
 
-//#include <config.h>
+#include <config.h>
 #include <iostream>
 #if defined(USE_BOOST_CONTAINERS)
 #define FWDPP_SUGAR_USE_BOOST
