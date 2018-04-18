@@ -35,8 +35,8 @@
 #include <fwdpp/interlocus_recombination.hpp>
 
 // personal haploid headers
-#include <fitness_models_haploid.hpp>
-#include <sample_haploid.hpp>
+#include <Haploid_files/fitness_models_haploid.hpp>
+#include <Haploid_files/sample_haploid.hpp>
 
 #endif
 

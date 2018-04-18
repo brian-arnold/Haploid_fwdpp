@@ -17,7 +17,7 @@
 #include <fwdpp/internal/gamete_cleaner.hpp>
 #include <fwdpp/internal/multilocus_rec.hpp>
 #include <fwdpp/internal/sample_diploid_helpers.hpp>
-#include <misc_functions.hpp>
+#include <Haploid_files/misc_functions.hpp>
 
 using namespace fwdpp ;
 

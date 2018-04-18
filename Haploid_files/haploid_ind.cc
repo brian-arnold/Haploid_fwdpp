@@ -14,13 +14,13 @@
 #ifdef HAVE_LIBSEQUENCE
 #include <Sequence/SimData.hpp>
 #endif
-#include <haploid.hh>
+#include <Haploid_files/haploid.hh>
 #include <fwdpp/recbinder.hpp>
 #include <fwdpp/sugar/popgenmut.hpp>
 // typedef mutation_with_age mtype;
 using mtype = fwdpp::popgenmut;
 #define SINGLEPOP_SIM
-#include <common_ind.hpp>
+#include <Haploid_files/common_ind.hpp>
 
 int
 main(int argc, char **argv)

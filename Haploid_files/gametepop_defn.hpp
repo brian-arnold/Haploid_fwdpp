@@ -5,7 +5,7 @@
 #include <vector>
 #include <unordered_set>
 #include <fwdpp/fwd_functional.hpp>
-#include <gametepop.hpp>
+#include <Haploid_files/gametepop.hpp>
 
 using namespace fwdpp ;
 

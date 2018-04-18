@@ -8,7 +8,7 @@
 #include <fwdpp/sugar/poptypes/tags.hpp>
 #include <fwdpp/sugar/poptypes/popbase.hpp>
 #include <fwdpp/sugar/poptypes/popbase.hpp>
-#include <misc_functions.hpp>
+#include <Haploid_files/misc_functions.hpp>
 #include <numeric>
 
 using namespace fwdpp::sugar ;
@@ -111,21 +111,7 @@ class gametepop : public popbase<mutation_type, mcont, gcont, mvector,
     {
         popbase_t::clear_containers();
     }
-    
-    /*
-    //template<typename gcont>
-    uint_t get_sum(const gcont_t &gametes)
-    {
-        uint_t sum ;
-        uint_t init = 0 ;
-        sum = std::accumulate(gametes.cbegin(), gametes.cend(), init,
-                              [](uint_t init,
-                                 const typename gcont_t::value_type &__g) {
-                                  return init + __g.n;
-                              });
-        return sum ;
-    }
-     */
+
 };
 
 

@@ -6,7 +6,7 @@
 #include <fwdpp/forward_types.hpp>
 #include <numeric>
 #include <functional>
-#include <misc_functions.cpp>
+#include <Haploid_files/misc_functions.cpp>
 
 using namespace fwdpp ;
 

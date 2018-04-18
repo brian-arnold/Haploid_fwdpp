@@ -116,5 +116,5 @@ double sample_haploid(
 
 // this needs to be included after, o.w. compiler doesnt like adding defaults to
 //func tmeplate already declared
-#include <sample_haploid.cpp>
+#include <Haploid_files/sample_haploid.cpp>
 #endif
