@@ -11,9 +11,9 @@
 #include <iostream>
 #include <type_traits>
 #include <vector>
-//#ifdef HAVE_LIBSEQUENCE
+#ifdef HAVE_LIBSEQUENCE
 #include <Sequence/SimData.hpp>
-//#endif
+#endif
 #include <fwdpp/diploid.hh>
 #include <fwdpp/recbinder.hpp>
 #include <fwdpp/sugar/popgenmut.hpp>
@@ -144,7 +144,7 @@ main(int argc, char **argv)
 
 // Write the sample date a to libsequence's Sequence::SimData and
 // print to screen
-//#ifdef HAVE_LIBSEQUENCE
+#ifdef HAVE_LIBSEQUENCE
             Sequence::SimData sdata;
             if (!mslike.empty())
                 {
@@ -155,7 +155,7 @@ main(int argc, char **argv)
                 {
                     std::cout << "//\nsegsites: 0\n";
                 }
-//#endif
+#endif
         }
     return 0;
 }
