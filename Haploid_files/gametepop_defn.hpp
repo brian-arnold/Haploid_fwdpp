@@ -10,8 +10,7 @@
 using namespace fwdpp ;
 
 /*!
-  \brief Single locus, single population object
-  \ingroup sugar
+ Many important object defined here
 */
 template <typename mtype>
 using gametepop_obj

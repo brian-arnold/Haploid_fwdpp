@@ -18,6 +18,7 @@
 #include <fwdpp/internal/multilocus_rec.hpp>
 #include <fwdpp/internal/sample_diploid_helpers.hpp>
 #include <Haploid_files/misc_functions.hpp>
+#include <Haploid_files/mutate_recombine_haploid.hpp>
 
 using namespace fwdpp ;
 
@@ -138,10 +139,9 @@ const double f,
             std::cout << "i:" <<i << "N:" << get_sum(gametes) << "\n" ;
           //from fitness_models_haploid.cpp, ff returns double
             fitnesses[i] = ff(gametes[i], mutations);
-            std::cout << fitnesses[i] << "\t" ;
             // (gamete fitness)*(pop freq) = total sampling probability
             fitnesses[i] = fitnesses[i]*static_cast<double>(gametes[i].n) ;
-            std::cout << fitnesses[i] << "\n" ;
+            std::cout << "fitness: " << fitnesses[i] << "\n" ;
             gametes[i].n = 0;
             wbar += fitnesses[i];
         }
@@ -171,36 +171,32 @@ const double f,
             std::cout << p1 << "\n" ;
             gametes[p1].n++ ;
             //For Recombination
+            
+            // at begining of sim, all ind's have same fitness
+            // can't force simulator to pick diff ind
+            auto p2 = gsl_ran_discrete(r, lookup.get());
+            
             /*
             auto p2 = p1 ;
             // select different individual p2 as DNA donor
             while(p2 == p1){
                 p2 = gsl_ran_discrete(r, lookup.get());
             }
+            */
+            
             assert(p1 < ngametes);
             assert(p2 < ngametes);
-            */
 
-            /*
-              These are the gametes from each parent.
-              This is a trivial assignment if keys.
-            */
-            //auto p1g1 = parents[p1].first;
-            //auto p1g2 = parents[p1].second;
-            //auto p2g1 = parents[p2].first;
-            //auto p2g2 = parents[p2].second;
-
-    ////////
-    // make overloaded versions of functions in fwdpp/mutate_recombine.hpp?
-    // first passes can have no rec... but have to modify this func in order to mutate!
-           /*
-            mutate_recombine_update(
+            std::tuple<int,int> tmp ;
+            
+            std::cout << "before mutation\n" ;
+            tmp = mutate_recombine_update_haploid(
                 r, gametes, mutations,
-                std::make_tuple(p1g1, p1g2, p2g1, p2g2), rec_pol, mmodel,
-                mu, gam_recycling_bin, mut_recycling_bin, dip, neutral,
+                std::make_tuple(p1, p2), rec_pol, mmodel,
+                mu, gam_recycling_bin, mut_recycling_bin, neutral,
                 selected);
-            */
-    ////////
+            std::cout << "after mutation\n" ;
+            std::cout << "NEW MUTATIONS: " << std::get<1>(tmp) << "\n" ;
 
 
     }
