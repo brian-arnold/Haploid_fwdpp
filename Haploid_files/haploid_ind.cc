@@ -111,27 +111,7 @@ main(int argc, char **argv)
                         */
                         mmodel,
                         // The function to generation recombination positions:
-
-
-
-
-
-
-
-                        // keep this here for now but just not do anything with it?
                         rec,
-
-
-
-
-
-
-
-
-
-
-
-
                         /*
                         Fitness function, can only pass pointers to functions
                          or function objects
@@ -147,6 +127,15 @@ main(int argc, char **argv)
                 }
 		std::cout << "made it!" << "\n" ;
             // Take a sample of size samplesize1 from the population
+            // sampleHap of length N, elements = # times gamete sampled
+            std::vector<unsigned> sampleHap
+                = fwdpp::sample(r.get(), pop.gametes,
+                            samplesize1, N);
+            
+            for(int i=0; i< sampleHap.size() ; i++){
+                std::cout << sampleHap[i] << "\t" ; ;
+            }
+            std::cout << "\n" ;
             /*
             std::vector<std::pair<double, std::string>> mslike
                 = fwdpp::ms_sample(r.get(), pop.mutations, pop.gametes,

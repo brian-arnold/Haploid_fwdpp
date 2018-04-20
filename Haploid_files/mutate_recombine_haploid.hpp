@@ -18,6 +18,7 @@
 #include <fwdpp/forward_types.hpp>
 #include <fwdpp/internal/mutation_internal.hpp>
 #include <fwdpp/internal/rec_gamete_updater.hpp>
+#include <fwdpp/mutate_recombine.hpp>
 
 using namespace fwdpp ;
 
@@ -103,8 +104,6 @@ generate_breakpoints(const diploid_t &diploid, const std::size_t g1,
 
 
 
-
-
 template <typename queue_type, typename mutation_model,
           typename gcont_t, typename mcont_t>
 std::vector<uint_t>
@@ -149,178 +148,6 @@ generate_new_mutations_haploid(queue_type &recycling_bin,
 }
 
 
-
-/*
-namespace fwdpp_internal
-{
-    template <typename container, typename integer_type, typename mcont_t>
-    typename container::iterator
-    insert_new_mutation(const typename container::iterator beg,
-                        const typename container::iterator end,
-                        const integer_type mut_key,
-                        const mcont_t &mutations, container &c)
-    // Inserts mutation key into c such that sort order is maintained
-    {
-        auto t = std::upper_bound(
-            beg, end, mutations[mut_key].pos,
-            [&mutations](const double &v, const uint_t mut) noexcept {
-                return v < mutations[mut].pos;
-            });
-        c.insert(c.end(), beg, t);
-        c.push_back(mut_key);
-        return t;
-    }
-
-    template <typename gcont_t, typename container>
-    void
-    prep_temporary_containers(const std::size_t g1, const std::size_t g2,
-                              const gcont_t &gametes, container &neutral,
-                              container &selected)
-    // Clear temporary containers and reserve memory
-    {
-        neutral.clear();
-        selected.clear();
-        neutral.reserve(std::max(gametes[g1].mutations.size(),
-                                 gametes[g2].mutations.size()));
-        selected.reserve(std::max(gametes[g1].smutations.size(),
-                                  gametes[g2].smutations.size()));
-    }
-}
- */
-
-
-
-
-/*
-template <typename gcont_t, typename mcont_t, typename queue_type>
-uint_t
-mutate_recombine(
-    const std::vector<uint_t> &new_mutations,
-    const std::vector<double> &breakpoints, const std::size_t g1,
-    const std::size_t g2, gcont_t &gametes, mcont_t &mutations,
-    queue_type &gamete_recycling_bin,
-    typename gcont_t::value_type::mutation_container &neutral,
-    typename gcont_t::value_type::mutation_container &selected)
-///
-/// Update apply new mutations and recombination events to
-/// an offspring's gamete.
-///
-/// \param new_mutations Keys to new mutations
-/// \param breakpoints Recombination breakpoints
-/// \param g1 Parental gamete 1
-/// \param g2 Parental gamete 2
-/// \param gametes The vector of gametes in the population
-/// \param mutations The vector of mutations in the population
-/// \param gamete_recycling_bin FIFO queue for gamete recycling
-/// \param neutral Temporary container for updating neutral mutations
-/// \param selected Temporary container for updatng selected positions
-///
-/// \return The index of the new offspring gamete in \a gametes.
-///
-/// \note For efficiency, it is helpful if \a new_mutations is sorted
-/// by mutation position.  fwdpp::generate_new_mutations exists to help in
-/// that
-/// regard. Many of the evolve functions used in this library and other
-/// packages by the author will use fwdpp::generate_breakpoints to
-/// generate \a breakpoints.  That is not, however, required.
-///
-/// \version
-/// This function was added in fwdpp 0.5.7.
-{
-    if (new_mutations.empty() && breakpoints.empty())
-        {
-            return g1;
-        }
-    else if (breakpoints.empty()) // only mutations to deal with
-        {
-            fwdpp_internal::prep_temporary_containers(g1, g2, gametes,
-                                                      neutral, selected);
-            auto nb = gametes[g1].mutations.begin(),
-                 sb = gametes[g1].smutations.begin();
-            const auto ne = gametes[g1].mutations.end(),
-                       se = gametes[g1].smutations.end();
-            for (auto &&m : new_mutations)
-                {
-                    if (mutations[m].neutral)
-                        {
-                            nb = fwdpp_internal::insert_new_mutation(
-                                nb, ne, m, mutations, neutral);
-                        }
-                    else
-                        {
-                            sb = fwdpp_internal::insert_new_mutation(
-                                sb, se, m, mutations, selected);
-                        }
-                }
-            neutral.insert(neutral.end(), nb, ne);
-            selected.insert(selected.end(), sb, se);
-
-            return fwdpp_internal::recycle_gamete(
-                gametes, gamete_recycling_bin, neutral, selected);
-        }
-    // If we get here, there are mutations and
-    // recombinations to handle
-    fwdpp_internal::prep_temporary_containers(g1, g2, gametes, neutral,
-                                              selected);
-
-    auto itr = gametes[g1].mutations.cbegin();
-    auto jtr = gametes[g2].mutations.cbegin();
-    auto itr_s = gametes[g1].smutations.cbegin();
-    auto jtr_s = gametes[g2].smutations.cbegin();
-    auto itr_e = gametes[g1].mutations.cend();
-    auto itr_s_e = gametes[g1].smutations.cend();
-    auto jtr_e = gametes[g2].mutations.cend();
-    auto jtr_s_e = gametes[g2].smutations.cend();
-
-    auto next_mutation = new_mutations.cbegin();
-    for (auto i = breakpoints.cbegin(); i != breakpoints.cend();)
-        {
-            if (next_mutation != new_mutations.cend()
-                && mutations[*next_mutation].pos < *i)
-                {
-                    const auto mut = &mutations[*next_mutation];
-                    itr = fwdpp_internal::rec_gam_updater(
-                        itr, itr_e, mutations, neutral, mut->pos);
-                    itr_s = fwdpp_internal::rec_gam_updater(
-                        itr_s, itr_s_e, mutations, selected, mut->pos);
-                    jtr = fwdpp_internal::rec_update_itr(
-                        jtr, jtr_e, mutations, mut->pos);
-                    jtr_s = fwdpp_internal::rec_update_itr(
-                        jtr_s, jtr_s_e, mutations, mut->pos);
-                    if (mut->neutral)
-                        {
-                            neutral.push_back(*next_mutation);
-                        }
-                    else
-                        {
-                            selected.push_back(*next_mutation);
-                        }
-                    ++next_mutation;
-                }
-            else
-                {
-                    itr = fwdpp_internal::rec_gam_updater(
-                        itr, itr_e, mutations, neutral, *i);
-                    itr_s = fwdpp_internal::rec_gam_updater(
-                        itr_s, itr_s_e, mutations, selected, *i);
-                    jtr = fwdpp_internal::rec_update_itr(jtr, jtr_e,
-                                                         mutations, *i);
-                    jtr_s = fwdpp_internal::rec_update_itr(jtr_s, jtr_s_e,
-                                                           mutations, *i);
-                    std::swap(itr, jtr);
-                    std::swap(itr_s, jtr_s);
-                    std::swap(itr_e, jtr_e);
-                    std::swap(itr_s_e, jtr_s_e);
-                    ++i;
-                }
-        }
-    assert(next_mutation == new_mutations.cend());
-    return fwdpp_internal::recycle_gamete(gametes, gamete_recycling_bin,
-                                          neutral, selected);
-}
- */
- 
- 
 template <typename gcont_t, typename mcont_t,
           typename recmodel, typename mutmodel>
 std::tuple<std::size_t, std::size_t>
@@ -380,6 +207,8 @@ mutate_recombine_update_haploid(
     // the integers representing the locations of the new mutations
     // in "mutations".
 
+    std::vector<double> breakpoints ;
+    
     //auto breakpoints = generate_breakpoints(dip, p1g1, p1g2, gametes,
                                             //mutations, rec_pol);
     //auto breakpoints2 = generate_breakpoints(dip, p2g1, p2g2, gametes,
@@ -402,27 +231,22 @@ mutate_recombine_update_haploid(
     // new gamete emplace_back'd onto the end.
     
     
-    
-    // TO MODIFY AND ADD
-    /*
-    dip.first = mutate_recombine(new_mutations, breakpoints, p1g1, p1g2,
+    auto p1newIdx = fwdpp::mutate_recombine(new_mutations, breakpoints, p1, p2,
                                  gametes, mutations, gamete_recycling_bin,
                                  neutral, selected);
-    dip.second = mutate_recombine(new_mutations2, breakpoints2, p2g1, p2g2,
-                                  gametes, mutations, gamete_recycling_bin,
-                                  neutral, selected);
-    gametes[dip.first].n++;
-    gametes[dip.second].n++;
+    //dip.second = mutate_recombine(new_mutations2, breakpoints2, p2g1, p2g2,
+                                  //gametes, mutations, gamete_recycling_bin,
+                                  //neutral, selected);
+    gametes[p1newIdx].n++;
 
-    assert(gametes[dip.first].n);
-    assert(gametes[dip.second].n);
+    assert(gametes[p1newIdx].n);
 
-    auto nrec = (!breakpoints.empty()) ? breakpoints.size() - 1 : 0;
-    auto nrec2 = (!breakpoints2.empty()) ? breakpoints2.size() - 1 : 0;
-    return std::make_tuple(nrec, nrec2, new_mutations.size(),
-                           new_mutations2.size());
-    */
+    //auto nrec = (!breakpoints.empty()) ? breakpoints.size() - 1 : 0;
+    //auto nrec2 = (!breakpoints2.empty()) ? breakpoints2.size() - 1 : 0;
+    //return std::make_tuple(nrec, nrec2, new_mutations.size(),
+                           //new_mutations2.size());
     
+    //replace 1 with breakpoints later
     return std::make_tuple( 1, new_mutations.size() );
 
     

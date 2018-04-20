@@ -15,7 +15,7 @@
 #include <fwdpp/internal/recycling.hpp>
 #include <fwdpp/internal/gsl_discrete.hpp>
 #include <fwdpp/internal/gamete_cleaner.hpp>
-#include <fwdpp/internal/multilocus_rec.hpp>
+//#include <fwdpp/internal/multilocus_rec.hpp>
 #include <fwdpp/internal/sample_diploid_helpers.hpp>
 #include "misc_functions.hpp"
 #include "mutate_recombine_haploid.hpp"
@@ -64,20 +64,20 @@ template <typename gamete_type, typename gamete_cont_type_allocator,
 double
 sample_haploid(
     //14 args
-const gsl_rng *r,
-    gamete_cont_type<gamete_type, gamete_cont_type_allocator> &gametes,
-    mutation_cont_type<mutation_type, mutation_cont_type_allocator> &mutations,
-    std::vector<uint_t> &mcounts,
-const uint_t &N_curr,
-    const uint_t &N_next,
-const double &mu,
-const mutation_model &mmodel,
-    const recombination_policy &rec_pol,
-    const haploid_fitness_function &ff,
-    typename gamete_type::mutation_container &neutral,
-    typename gamete_type::mutation_container &selected,
-const double f,
-    const mutation_removal_policy mp)
+   const gsl_rng *r,
+   gamete_cont_type<gamete_type, gamete_cont_type_allocator> &gametes,
+   mutation_cont_type<mutation_type, mutation_cont_type_allocator> &mutations,
+   std::vector<uint_t> &mcounts,
+   const uint_t &N_curr,
+   const uint_t &N_next,
+   const double &mu,
+   const mutation_model &mmodel,
+   const recombination_policy &rec_pol,
+   const haploid_fitness_function &ff,
+   typename gamete_type::mutation_container &neutral,
+   typename gamete_type::mutation_container &selected,
+   const double f,
+   const mutation_removal_policy mp)
 {
     /*
       The main part of fwdpp does not throw exceptions.
@@ -97,12 +97,15 @@ const double f,
     // test preconditions in debugging mode
     for (const auto &g : gametes)
     {
-        assert(gamete_data_sane(g, mutations, mcounts)) ;
+        // check if mutation count data sane for extant gametes
+       if(g.n){
+            assert(gamete_data_sane(g, mutations, mcounts)) ;
+        }
     }
-    std::cout << "in sample_haploid\n" ;
+    //std::cout << "in sample_haploid\n" ;
     assert(mcounts.size() == mutations.size());
     assert(check_sum(gametes, N_curr)); // BA: uses Kevin's check_sum func to cycle through gametes, counting n
-    std::cout << "init N: " << get_sum(gametes) << "\n" ;
+    //std::cout << "init N: " << get_sum(gametes) << "\n" ;
     assert(mcounts.size() == mutations.size());
 
     /*
@@ -136,15 +139,16 @@ const double f,
     // taken from ./fwdpp/io/gamete.hpp:
     for (std::size_t i = 0; i < ngametes; ++i)
         {
-            std::cout << "i:" <<i << "N:" << get_sum(gametes) << "\n" ;
+            std::cout << "gamete" << i << ":  " << gametes[i].n << "\t" ;
           //from fitness_models_haploid.cpp, ff returns double
             fitnesses[i] = ff(gametes[i], mutations);
             // (gamete fitness)*(pop freq) = total sampling probability
             fitnesses[i] = fitnesses[i]*static_cast<double>(gametes[i].n) ;
-            std::cout << "fitness: " << fitnesses[i] << "\n" ;
+            //std::cout << "fitness: " << fitnesses[i] << "\n" ;
             gametes[i].n = 0;
             wbar += fitnesses[i];
         }
+    std::cout << "\n" ;
     // divide by popsize, which may != ngametes since gametes may have n>1
     wbar /= double(N_curr);
 #ifndef NDEBUG
@@ -163,13 +167,13 @@ const double f,
     fwdpp_internal::gsl_ran_discrete_t_ptr lookup(
         gsl_ran_discrete_preproc(ngametes, fitnesses.data()));
     // Fill in the next generation!
-    std::cout << "ngametes: " << ngametes << "\n" ;
+    //std::cout << "ngametes: " << ngametes << "\n" ;
     for (std::size_t i = 0; i < N_next; ++i)
         {
             // Choose parent 1 based on fitness
             auto p1 = gsl_ran_discrete(r, lookup.get());
-            std::cout << p1 << "\n" ;
-            gametes[p1].n++ ;
+            //std::cout << p1 << "\n" ;
+            //gametes[p1].n++ ;
             //For Recombination
 
             // at begining of sim, all ind's have same fitness
@@ -187,19 +191,30 @@ const double f,
             assert(p1 < ngametes);
             assert(p2 < ngametes);
 
+            // # brkpoints, # new muts
             std::tuple<int,int> tmp ;
 
-            std::cout << "before mutation\n" ;
             tmp = mutate_recombine_update_haploid(
                 r, gametes, mutations,
                 std::make_tuple(p1, p2), rec_pol, mmodel,
                 mu, gam_recycling_bin, mut_recycling_bin, neutral,
                 selected);
-            std::cout << "after mutation\n" ;
-            std::cout << "NEW MUTATIONS: " << std::get<1>(tmp) << "\n" ;
-
+            if( std::get<1>(tmp) ){
+                std::cout << "NEW MUTATIONS\n" ;
+            }
+            //std::cout << "NEW MUTATIONS: " << std::get<1>(tmp) << "\n" ;
+            //std::cout << "TOT MUTATIONS: " << mutations.size() << "\n" ;
+            //for (int i=0; i<mutations.size(); i++) {
+            //    std::cout << mutations[i].pos << "\t" ;
+            //}
+            //std::cout << "\n" ;
 
     }
+    for (std::size_t i = 0; i < ngametes; ++i)
+    {
+        std::cout << "gamete" << i << ":  " << gametes[i].n << "\t" ;
+    }
+    std::cout << "\n" ;
     std::cout << "N aft: " << get_sum(gametes) << "\n" ;
     assert(check_sum(gametes, N_next));
 #ifndef NDEBUG
@@ -253,7 +268,10 @@ for (const auto &dip : diploids)
 
     for (const auto &g : gametes)
     {
-        assert(gamete_data_sane(g, mutations, mcounts)) ;
+        // check if mutation count data sane for extant gametes
+        if(g.n){
+            assert(gamete_data_sane(g, mutations, mcounts)) ;
+        }
     }
 
     /*
