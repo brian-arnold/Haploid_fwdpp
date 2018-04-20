@@ -16,7 +16,7 @@
    mutation type
 */
 #ifdef SINGLEPOP_SIM
-#include <Haploid_files/gametepop_defn.hpp>
+#include "gametepop_defn.hpp"
 using singlepop_t = gametepop_obj<mtype>;
 #endif
 

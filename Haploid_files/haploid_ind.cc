@@ -14,13 +14,13 @@
 #ifdef HAVE_LIBSEQUENCE
 #include <Sequence/SimData.hpp>
 #endif
-#include <Haploid_files/haploid.hh>
+#include "haploid.hh"
 #include <fwdpp/recbinder.hpp>
 #include <fwdpp/sugar/popgenmut.hpp>
 // typedef mutation_with_age mtype;
 using mtype = fwdpp::popgenmut;
 #define SINGLEPOP_SIM
-#include <Haploid_files/common_ind.hpp>
+#include "common_ind.hpp"
 
 int
 main(int argc, char **argv)
@@ -78,9 +78,9 @@ main(int argc, char **argv)
             for(int i=1; i< N; i++){
                 pop.gametes.push_back(fwdpp::gamete(zero)) ;
             }
-            
-            
-            
+
+
+
             pop.mutations.reserve(size_t(std::ceil(std::log(2 * N) * theta + 0.667 * theta)));
             unsigned generation = 0;
             double wbar;
@@ -111,27 +111,27 @@ main(int argc, char **argv)
                         */
                         mmodel,
                         // The function to generation recombination positions:
-                                                 
-                                                 
-                                                 
-                                                 
-                                                 
-                                                 
-                                                 
+
+
+
+
+
+
+
                         // keep this here for now but just not do anything with it?
                         rec,
-                                                 
-                                                 
-                                                 
-                                                 
-                                                 
-                                                 
-                                                 
-                                                 
-                                                 
-                                                 
-                                                 
-                                                 
+
+
+
+
+
+
+
+
+
+
+
+
                         /*
                         Fitness function, can only pass pointers to functions
                          or function objects

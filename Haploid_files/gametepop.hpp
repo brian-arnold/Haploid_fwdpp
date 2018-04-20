@@ -8,7 +8,7 @@
 #include <fwdpp/sugar/poptypes/tags.hpp>
 #include <fwdpp/sugar/poptypes/popbase.hpp>
 #include <fwdpp/sugar/poptypes/popbase.hpp>
-#include <Haploid_files/misc_functions.hpp>
+#include "misc_functions.hpp"
 #include <numeric>
 
 using namespace fwdpp::sugar ;
@@ -35,8 +35,8 @@ class gametepop : public popbase<mutation_type, mcont, gcont, mvector,
     process_individual_input()
     {
     }
-   
-    
+
+
     /*
     void
     process_individual_input()
@@ -46,7 +46,7 @@ class gametepop : public popbase<mutation_type, mcont, gcont, mvector,
                 this->validate_gamete_keys(g);
             }
     }
-    
+
     void
     validate_gamete_keys(const std::size_t key)
     {

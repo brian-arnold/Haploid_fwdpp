@@ -17,8 +17,8 @@
 #include <fwdpp/internal/gamete_cleaner.hpp>
 #include <fwdpp/internal/multilocus_rec.hpp>
 #include <fwdpp/internal/sample_diploid_helpers.hpp>
-#include <Haploid_files/misc_functions.hpp>
-#include <Haploid_files/mutate_recombine_haploid.hpp>
+#include "misc_functions.hpp"
+#include "mutate_recombine_haploid.hpp"
 
 using namespace fwdpp ;
 
@@ -36,14 +36,14 @@ sample_haploid(
     const gsl_rng *r,
     gamete_cont_type<gamete_type, gamete_cont_type_allocator> &gametes,
     mutation_cont_type<mutation_type, mutation_cont_type_allocator> &mutations,
-    std::vector<uint_t> &mcounts, 
+    std::vector<uint_t> &mcounts,
     const uint_t &N_curr,
     const double &mu,
-    const mutation_model &mmodel, 
+    const mutation_model &mmodel,
     const recombination_policy &rec_pol,
     const haploid_fitness_function &ff,
     typename gamete_type::mutation_container &neutral,
-    typename gamete_type::mutation_container &selected, 
+    typename gamete_type::mutation_container &selected,
     const double f,
     const mutation_removal_policy mp)
 {
@@ -67,15 +67,15 @@ sample_haploid(
 const gsl_rng *r,
     gamete_cont_type<gamete_type, gamete_cont_type_allocator> &gametes,
     mutation_cont_type<mutation_type, mutation_cont_type_allocator> &mutations,
-    std::vector<uint_t> &mcounts, 
+    std::vector<uint_t> &mcounts,
 const uint_t &N_curr,
-    const uint_t &N_next, 
-const double &mu, 
+    const uint_t &N_next,
+const double &mu,
 const mutation_model &mmodel,
     const recombination_policy &rec_pol,
     const haploid_fitness_function &ff,
     typename gamete_type::mutation_container &neutral,
-    typename gamete_type::mutation_container &selected, 
+    typename gamete_type::mutation_container &selected,
 const double f,
     const mutation_removal_policy mp)
 {
@@ -171,11 +171,11 @@ const double f,
             std::cout << p1 << "\n" ;
             gametes[p1].n++ ;
             //For Recombination
-            
+
             // at begining of sim, all ind's have same fitness
             // can't force simulator to pick diff ind
             auto p2 = gsl_ran_discrete(r, lookup.get());
-            
+
             /*
             auto p2 = p1 ;
             // select different individual p2 as DNA donor
@@ -183,12 +183,12 @@ const double f,
                 p2 = gsl_ran_discrete(r, lookup.get());
             }
             */
-            
+
             assert(p1 < ngametes);
             assert(p2 < ngametes);
 
             std::tuple<int,int> tmp ;
-            
+
             std::cout << "before mutation\n" ;
             tmp = mutate_recombine_update_haploid(
                 r, gametes, mutations,
@@ -211,7 +211,7 @@ for (const auto &dip : diploids)
             assert(gametes[dip.second].n > 0);
             assert(gametes[dip.second].n <= 2 * N_next);
         }
-*/    
+*/
 #endif
     /*
       At the end of the above loop, we have a bunch of new diploids
@@ -250,7 +250,7 @@ for (const auto &dip : diploids)
             assert(mc <= 2 * N_next);
         }
 #endif
-    
+
     for (const auto &g : gametes)
     {
         assert(gamete_data_sane(g, mutations, mcounts)) ;
