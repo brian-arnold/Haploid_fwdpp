@@ -9,9 +9,9 @@ P=haploid_ind
 
 .SUFFIXES:
 
-all: $(P) #$(F)/Makefile
+all: ../$(P) #$(F)/Makefile
 
-$(P): $(P).cc #$(F)/Makefile
+../$(P): $(P).cc $(F)/Makefile
 	g++ -I$(F) -I/usr/local/include/ -std=c++11 -lgsl -lgslcblas -o $@ $<
 
 
@@ -20,6 +20,6 @@ $(F)/Makefile:
 
 
 clean: #  $(F)/Makefile
-	rm -f $(P)
+	rm -f ../$(P)
 	#$(MAKE) -C $(F) maintainer-clean
 
