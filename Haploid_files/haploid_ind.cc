@@ -11,9 +11,9 @@
 #include <iostream>
 #include <type_traits>
 #include <vector>
-#ifdef HAVE_LIBSEQUENCE
+//#ifdef HAVE_LIBSEQUENCE
 #include <Sequence/SimData.hpp>
-#endif
+//#endif
 #include "haploid.hh"
 #include <fwdpp/recbinder.hpp>
 #include <fwdpp/sugar/popgenmut.hpp>
@@ -128,6 +128,7 @@ main(int argc, char **argv)
 		std::cout << "made it!" << "\n" ;
             // Take a sample of size samplesize1 from the population
             // sampleHap of length N, elements = # times gamete sampled
+            /*
             std::vector<unsigned> sampleHap
                 = fwdpp::sample(r.get(), pop.gametes,
                             samplesize1, N);
@@ -136,15 +137,25 @@ main(int argc, char **argv)
                 std::cout << sampleHap[i] << "\t" ; ;
             }
             std::cout << "\n" ;
+            */
+            
+            std::vector< std::pair<std::size_t, std::size_t>> pseudodips
+                = group_haps_into_dips(r.get(), pop.gametes) ;
+            
             /*
             std::vector<std::pair<double, std::string>> mslike
                 = fwdpp::ms_sample(r.get(), pop.mutations, pop.gametes,
                                    pop.diploids, samplesize1, true);
-            */
+             */
+            std::vector<std::pair<double, std::string>> mslike
+            = fwdpp::ms_sample(r.get(), pop.mutations, pop.gametes,
+                               pseudodips, samplesize1, true);
+            
 // Write the sample date a to libsequence's Sequence::SimData and
 // print to screen
-#ifdef HAVE_LIBSEQUENCE
+//#ifdef HAVE_LIBSEQUENCE
             Sequence::SimData sdata;
+            
             if (!mslike.empty())
                 {
                     sdata.assign(mslike.begin(), mslike.end());
@@ -154,7 +165,8 @@ main(int argc, char **argv)
                 {
                     std::cout << "//\nsegsites: 0\n";
                 }
-#endif
+            
+//#endif
         }
     return 0;
 }

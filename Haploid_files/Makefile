@@ -12,7 +12,7 @@ P=haploid_ind
 all: ../$(P) #$(F)/Makefile
 
 ../$(P): $(P).cc $(F)/Makefile
-	g++ -I$(F) -I/usr/local/include/ -std=c++11 -lgsl -lgslcblas -o $@ $<
+	g++ -I$(F) -I/usr/local/include/ -std=c++11 -lsequence -lgsl -lgslcblas -o $@ $<
 
 
 $(F)/Makefile:
