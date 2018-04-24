@@ -9,6 +9,7 @@
   4.  Outputting a sample in "ms" format
 */
 #include <iostream>
+#include <fstream>
 #include <type_traits>
 #include <vector>
 //#ifdef HAVE_LIBSEQUENCE
@@ -25,10 +26,10 @@ using mtype = fwdpp::popgenmut;
 int
 main(int argc, char **argv)
 {
-    if (argc != 8)
+    if (argc != 10)
         {
             std::cerr << "Too few arguments\n"
-                      << "Usage: diploid_ind N theta rho ngens samplesize "
+                      << "Usage: diploid_ind N theta rho fragsize meantrlen ngens samplesize "
                          "nreps seed\n";
             exit(0);
         }
@@ -37,33 +38,57 @@ main(int argc, char **argv)
     const double theta = atof(argv[argument++]); // 4*n*mutation rate.  Note:
                                                  // mutation rate is per
                                                  // REGION, not SITE!!
-    const double rho = atof(argv[argument++]);   // 4*n*recombination rate.
+    const double rho = atof(argv[argument++]);   // 2*n*recombination rate.
                                                  // Note: recombination rate is
                                                  // per REGION, not SITE!!
+    const double fragsize = (atof(argv[argument++])); // need fragsize and mean rec tract length
+    const double meantrlen = (atof(argv[argument++])); // to compute rec sizes on [0,1] interval
     const unsigned ngens = unsigned(atoi(argv[argument++])); // Number of generations to simulate
     const unsigned samplesize1 = unsigned(atoi(argv[argument++])); // Sample size to draw from the population
     int nreps = atoi(argv[argument++]); // Number of replicates to simulate
     const unsigned seed = unsigned(atoi(argv[argument++])); // Random number seed
-    const double mu = theta / double(4 * N); // per-gamete mutation rate
-
-    /*
-      littler r is the recombination rate per region per generation.
-    */
-    const double littler = rho / double(4 * N);
+    
+    
+    const double mu = theta / double(2 * N); // per-gamete mutation rate
+    const double littler = rho / double(2 * N);// per-gamete reconbination rate
 
     // Write the command line to stderr
     std::copy(argv, argv + argc, std::ostream_iterator<char *>(std::cerr, " "));
     std::cerr << '\n';
 
+    std::copy(argv, argv + argc, std::ostream_iterator<char *>(std::cout, " "));
+    std::cout << '\n';
     // Initiate random number generation system (via fwdpp/sugar/GSLrng_t.hpp)
     GSLrng r(seed);
 
     unsigned twoN = 2 * N;
     unsigned halfN = N / 2 ;
 
+    
+    
+    
+    //double geop = (static_cast<double>(meantrlen))/(static_cast<double>(fragsize)) ;
     // recombination map is uniform[0,1)
-    const auto rec = fwdpp::recbinder(fwdpp::poisson_xover(littler, 0., 1.), r.get());
-    std::cout << "starting" << "\n" ;
+    //homologous_rec hrec(littler, 0., 1., meantrlen, fragsize) ;
+    //hrec(r.get()) ;
+    
+    const auto rec = fwdpp::recbinder(homologous_rec(littler, 0., 1., meantrlen, fragsize), r.get());
+    /*
+    for(int i=0; i< 10; i++){
+        std::vector<double> tmp = rec() ;
+        for(int j=0; j< tmp.size(); j++){
+            std::cout << tmp[j] << "\t" ;
+        }
+        std::cout << "\n" ;
+    }
+     */
+    std::string filename = "time.txt" ;
+    std::ofstream out ;
+    out.open(filename.c_str()) ;
+    // START CLOCK
+    time_t begin, end;
+    begin = time(0);
+    
     while (nreps--)
         {
             /* A few hacks to deal with popbase base class
@@ -125,7 +150,6 @@ main(int argc, char **argv)
                                             pop.mcounts, generation, N);
                     assert(fwdpp::check_sum(pop.gametes, N));
                 }
-		std::cout << "made it!" << "\n" ;
             // Take a sample of size samplesize1 from the population
             // sampleHap of length N, elements = # times gamete sampled
             /*
@@ -168,5 +192,8 @@ main(int argc, char **argv)
             
 //#endif
         }
+    end = time(0);
+    int TimeTaken = int(difftime(end,begin)) ;
+    out << "hours:min:sec " << TimeTaken/3600 << ":" << (TimeTaken%3600)/60 << ":" << TimeTaken%60 << "\n" ;
     return 0;
 }

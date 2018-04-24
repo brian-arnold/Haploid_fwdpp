@@ -31,12 +31,12 @@
 #include <fwdpp/sampling_functions.hpp>
 #include <fwdpp/util.hpp>
 #include <fwdpp/general_rec_variation.hpp>
-#include <fwdpp/poisson_xover.hpp>
 #include <fwdpp/interlocus_recombination.hpp>
 
 // personal haploid headers
 #include "fitness_models_haploid.hpp"
 #include "sample_haploid.hpp"
+#include "homologous_rec.hpp"
 
 #endif
 

@@ -8,6 +8,7 @@
 #ifndef _MUTATE_RECOMBINE_HAPLOID_HPP__
 #define _MUTATE_RECOMBINE_HAPLOID_HPP__
 
+#include <iostream>
 #include <vector>
 #include <algorithm>
 #include <cassert>
@@ -63,14 +64,11 @@ dispatch_recombination_policy(const recombination_policy &rec_pol,
 
 
 
-// GENERATE BREAKPOINTS FUNC, USE LATER
-/*
-template <typename recombination_policy, typename diploid_t,
-          typename gcont_t, typename mcont_t>
+template <typename recombination_policy, typename gcont_t,
+            typename mcont_t>
 std::vector<double>
-generate_breakpoints(const diploid_t &diploid, const std::size_t g1,
-                     const std::size_t g2, const gcont_t &gametes,
-                     const mcont_t &mutations,
+generate_breakpoints_haploid(const std::size_t g1, const std::size_t g2,
+                     const gcont_t &gametes, const mcont_t &mutations,
                      const recombination_policy &rec_pol)
 /// Generate vector of recombination breakpoints
 ///
@@ -96,11 +94,14 @@ generate_breakpoints(const diploid_t &diploid, const std::size_t g1,
         {
             return {};
         }
+    /*
     return dispatch_recombination_policy(
         std::cref(rec_pol), std::cref(diploid), std::cref(gametes[g1]),
         std::cref(gametes[g2]), std::cref(mutations));
+    */
+    return rec_pol() ;
 }
- */
+
 
 
 
@@ -206,13 +207,17 @@ mutate_recombine_update_haploid(
     // the new_mutations are std::vector<fwdpp::uint_t>, with
     // the integers representing the locations of the new mutations
     // in "mutations".
-
-    std::vector<double> breakpoints ;
     
-    //auto breakpoints = generate_breakpoints(dip, p1g1, p1g2, gametes,
-                                            //mutations, rec_pol);
-    //auto breakpoints2 = generate_breakpoints(dip, p2g1, p2g2, gametes,
-                                             //mutations, rec_pol);
+    auto breakpoints
+            = generate_breakpoints_haploid(p1, p2, gametes, mutations,
+                                           rec_pol);
+    /*
+    std::cout << breakpoints.size() << "\n" ;
+    for(unsigned i=0; i<breakpoints.size(); i++){
+        std::cout << breakpoints[i] << "\t" ;
+    }
+    std::cout << "\n" ;
+     */
     auto new_mutations
         = generate_new_mutations_haploid(mutation_recycling_bin, r, mu,
                                  gametes, mutations, p1, mmodel);
@@ -238,7 +243,6 @@ mutate_recombine_update_haploid(
                                   //gametes, mutations, gamete_recycling_bin,
                                   //neutral, selected);
     gametes[p1newIdx].n++;
-
     assert(gametes[p1newIdx].n);
 
     //auto nrec = (!breakpoints.empty()) ? breakpoints.size() - 1 : 0;
@@ -246,8 +250,7 @@ mutate_recombine_update_haploid(
     //return std::make_tuple(nrec, nrec2, new_mutations.size(),
                            //new_mutations2.size());
     
-    //replace 1 with breakpoints later
-    return std::make_tuple( 1, new_mutations.size() );
+    return std::make_tuple( breakpoints.size(), new_mutations.size() );
 
     
 }

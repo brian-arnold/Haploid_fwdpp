@@ -129,6 +129,7 @@ sample_haploid(
       fwdpp/internal/recycling.hpp
     */
     auto mut_recycling_bin = fwdpp_internal::make_mut_queue(mcounts);
+    // this tags gametes with n=0 for recycling; b4 they're marked as 0 during fitness calc
     auto gam_recycling_bin = fwdpp_internal::make_gamete_queue(gametes);
 
 
@@ -139,7 +140,7 @@ sample_haploid(
     // taken from ./fwdpp/io/gamete.hpp:
     for (std::size_t i = 0; i < ngametes; ++i)
         {
-            std::cout << "gamete" << i << ":  " << gametes[i].n << "\t" ;
+            //std::cout << "gamete" << i << ":  " << gametes[i].n << "\t" ;
           //from fitness_models_haploid.cpp, ff returns double
             fitnesses[i] = ff(gametes[i], mutations);
             // (gamete fitness)*(pop freq) = total sampling probability
@@ -148,7 +149,7 @@ sample_haploid(
             gametes[i].n = 0;
             wbar += fitnesses[i];
         }
-    std::cout << "\n" ;
+    //std::cout << "\n" ;
     // divide by popsize, which may != ngametes since gametes may have n>1
     wbar /= double(N_curr);
 #ifndef NDEBUG
@@ -167,13 +168,10 @@ sample_haploid(
     fwdpp_internal::gsl_ran_discrete_t_ptr lookup(
         gsl_ran_discrete_preproc(ngametes, fitnesses.data()));
     // Fill in the next generation!
-    //std::cout << "ngametes: " << ngametes << "\n" ;
     for (std::size_t i = 0; i < N_next; ++i)
         {
             // Choose parent 1 based on fitness
             auto p1 = gsl_ran_discrete(r, lookup.get());
-            //std::cout << p1 << "\n" ;
-            //gametes[p1].n++ ;
             //For Recombination
 
             // at begining of sim, all ind's have same fitness
@@ -199,23 +197,20 @@ sample_haploid(
                 std::make_tuple(p1, p2), rec_pol, mmodel,
                 mu, gam_recycling_bin, mut_recycling_bin, neutral,
                 selected);
-            if( std::get<1>(tmp) ){
-                std::cout << "NEW MUTATIONS\n" ;
-            }
-            //std::cout << "NEW MUTATIONS: " << std::get<1>(tmp) << "\n" ;
-            //std::cout << "TOT MUTATIONS: " << mutations.size() << "\n" ;
-            //for (int i=0; i<mutations.size(); i++) {
-            //    std::cout << mutations[i].pos << "\t" ;
+            //if( std::get<1>(tmp) ){
+            //    std::cout << "NEW MUTATIONS\n" ;
             //}
-            //std::cout << "\n" ;
 
     }
+    /*
+    std::cout << "AFTER MUT\n" ;
     for (std::size_t i = 0; i < ngametes; ++i)
     {
         std::cout << "gamete" << i << ":  " << gametes[i].n << "\t" ;
     }
     std::cout << "\n" ;
     std::cout << "N aft: " << get_sum(gametes) << "\n" ;
+     */
     assert(check_sum(gametes, N_next));
 #ifndef NDEBUG
     /*
