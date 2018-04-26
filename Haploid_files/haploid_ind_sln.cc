@@ -110,7 +110,6 @@ main(int argc, char **argv)
             unsigned generation = 0;
             double wbar;
 
-            // MUTATION MODEL, NEUTRAL
             const auto mmodel =
                 [&pop, &r, &generation](std::queue<std::size_t> &recbin,
                                         singlepop_t::mcont_t &mutations) {
@@ -190,10 +189,8 @@ main(int argc, char **argv)
                 {
                     std::cout << "//\nsegsites: 0\n";
                 }
+            
 //#endif
-            //for(unsigned i = 0; i < pop.mcounts.size(); i++){
-            //    std::cout << i << " " << pop.mcounts[i] << "\n" ;
-            //}
         }
     end = time(0);
     int TimeTaken = int(difftime(end,begin)) ;
