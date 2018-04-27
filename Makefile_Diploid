@@ -1,0 +1,12 @@
+.PHONY: all help clean
+
+.SECONDARY:
+
+.SUFFIXES:
+
+all:
+	$(MAKE) -C OriginalDiploidFilesCompiled 
+
+
+clean:
+	$(MAKE) -C OriginalDiploidFilesCompiled clean

@@ -222,7 +222,8 @@ struct homologous_rec
     // pos is a vector of break points, ocurring in pairs
     // e.g. pos[0] and pos[1] are the begin and end of rec1
     // mutable to allow it to be modified by const func below
-    mutable std::vector<double> pos;
+    //mutable std::vector<double> pos;
+    //mutable std::vector<int> toDelete;
     
     explicit homologous_rec(const double recrate_, const double minpos_,
                             const double maxpos_, const double meantrlen_,
@@ -245,8 +246,9 @@ struct homologous_rec
     std::vector<double>
     operator()(const gsl_rng * r) const
     {
-        pos.clear() ;
-
+        //pos.clear() ;
+        //toDelete.clear() ;
+        
         // calculate number of recomb. events
         unsigned nbreaks
             = (recrate > 0) ? gsl_ran_poisson(r, recrate) : 0u;
@@ -263,8 +265,7 @@ struct homologous_rec
          }
          */
         std::vector<double> pos ;
-        pos.reserve(2*nbreaks + 1);
-        std::vector<int> toDelete ;
+        pos.reserve(2*nbreaks + 1) ;
         // generate breakpoints for rec events
         for (unsigned i = 0; i < nbreaks; ++i){
             // returns a random variate from the flat (uniform) distribution
@@ -273,14 +274,14 @@ struct homologous_rec
                 // rec proceeds to right, no breakpoints beyond fragsize
                 // geometric distribution p(1-p)^(k-1), which has
                 // mean 1/p
-                pos.push_back(recpt) ;
-                pos.push_back(std::min((recpt+(gsl_ran_geometric(r, geop)/fragsize)),
+                pos.emplace_back(recpt) ;
+                pos.emplace_back(std::min((recpt+(gsl_ran_geometric(r, geop)/fragsize)),
                                         maxpos)) ;
             }else{
                 // rec proceeds to left, no negative breakpoints
-                pos.push_back(std::max((recpt-(gsl_ran_geometric(r, geop)/fragsize)),
+                pos.emplace_back(std::max((recpt-(gsl_ran_geometric(r, geop)/fragsize)),
                                        minpos)) ;
-                pos.push_back(recpt) ;
+                pos.emplace_back(recpt) ;
             }
         }
         //std::sort(rawpos.begin(), rawpos.end()) ;
@@ -328,6 +329,8 @@ struct homologous_rec
          }
         */
         if(nbreaks>1){
+            std::vector<int> toDelete ;
+            toDelete.reserve(nbreaks) ;
             for (unsigned a = 0; a < 2*nbreaks-2; a+=2){
                 for (unsigned b = a+2; b < 2*nbreaks-1; b+=2){
                     if(pos[b] > pos[a+1] || pos[b+1] < pos[a]){
@@ -340,21 +343,21 @@ struct homologous_rec
                         if(pos[b] >= pos[a] && pos[b+1] <= pos[a+1]){
                             //rec1 conflict with rec8/9
                             //delete B
-                            toDelete.push_back(b) ;
+                            toDelete.emplace_back(b) ;
                         }else if(pos[b] < pos[a] && pos[b+1] > pos[a+1]){
                             //rec1 conflict with rec10
                             //delete A
-                            toDelete.push_back(a) ;
+                            toDelete.emplace_back(a) ;
                         }else if(pos[b] <= pos[a+1] && pos[b] >= pos[a]){
                             //rec1 conflicts with rec2/3/4
                             //set A.max=B.max, delete B
                             pos[a+1] = pos[b+1] ;
-                            toDelete.push_back(b) ;
+                            toDelete.emplace_back(b) ;
                         }else if(pos[b+1] >= pos[a] && pos[b+1] <= pos[a+1]){
                             //rec1 conflicts with rec5/6/7
                             //set A.min=B.min, delete B
                             pos[a] = pos[b] ;
-                            toDelete.push_back(b) ;
+                            toDelete.emplace_back(b) ;
                         }
                     }
                 }
@@ -388,7 +391,7 @@ struct homologous_rec
         
         std::sort(pos.begin(), pos.end());
         // Note: this is required for all vectors of breakpoints!
-        pos.push_back(std::numeric_limits<double>::max());
+        pos.emplace_back(std::numeric_limits<double>::max());
         /*
          for(unsigned i = 0; i<pos.size(); ++i){
          std::cout << pos[i] << "\t" ;

@@ -136,6 +136,8 @@ sample_haploid(
     std::size_t ngametes = gametes.size();
     // vect of fitnesses
     std::vector<double> fitnesses(ngametes);
+    // vect to neutrally sample gametes
+    std::vector<double> samp_neutral(ngametes);
     double wbar = 0.; // pop'n mean fitness
     // taken from ./fwdpp/io/gamete.hpp:
     for (std::size_t i = 0; i < ngametes; ++i)
@@ -145,6 +147,7 @@ sample_haploid(
             fitnesses[i] = ff(gametes[i], mutations);
             // (gamete fitness)*(pop freq) = total sampling probability
             fitnesses[i] = fitnesses[i]*static_cast<double>(gametes[i].n) ;
+            samp_neutral[i] = static_cast<double>(gametes[i].n) ;
             //std::cout << "fitness: " << fitnesses[i] << "\n" ;
             gametes[i].n = 0;
             wbar += fitnesses[i];
@@ -165,19 +168,19 @@ sample_haploid(
       is required to make this work, which is why there is no cleanup call
       down below.
     */
-    fwdpp_internal::gsl_ran_discrete_t_ptr lookup(
+    fwdpp_internal::gsl_ran_discrete_t_ptr lookup_sel(
         gsl_ran_discrete_preproc(ngametes, fitnesses.data()));
+    fwdpp_internal::gsl_ran_discrete_t_ptr lookup_neut(
+        gsl_ran_discrete_preproc(ngametes, samp_neutral.data()));
     // Fill in the next generation!
     for (std::size_t i = 0; i < N_next; ++i)
         {
             // Choose parent 1 based on fitness
-            auto p1 = gsl_ran_discrete(r, lookup.get());
-            //For Recombination
-
-            // at begining of sim, all ind's have same fitness
-            // can't force simulator to pick diff ind
-            auto p2 = gsl_ran_discrete(r, lookup.get());
-
+            auto p1 = gsl_ran_discrete(r, lookup_sel.get());
+            // Donor for recombination
+            // RANDOMLY sample for recombinant
+            auto p2 = gsl_ran_discrete(r, lookup_neut.get());
+          
             /*
             auto p2 = p1 ;
             // select different individual p2 as DNA donor
@@ -190,9 +193,9 @@ sample_haploid(
             assert(p2 < ngametes);
 
             // # brkpoints, # new muts
-            std::tuple<int,int> tmp ;
+            //std::tuple<int,int> tmp ;
 
-            tmp = mutate_recombine_update_haploid(
+            mutate_recombine_update_haploid(
                 r, gametes, mutations,
                 std::make_tuple(p1, p2), rec_pol, mmodel,
                 mu, gam_recycling_bin, mut_recycling_bin, neutral,

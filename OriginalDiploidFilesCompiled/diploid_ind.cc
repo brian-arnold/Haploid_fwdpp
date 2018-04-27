@@ -8,6 +8,7 @@
   3.  Iterating a population through its life cycle
   4.  Outputting a sample in "ms" format
 */
+#include <fstream>
 #include <iostream>
 #include <type_traits>
 #include <vector>
@@ -20,7 +21,7 @@
 // typedef mutation_with_age mtype;
 using mtype = fwdpp::popgenmut;
 #define SINGLEPOP_SIM
-#include <common_ind.hpp>
+#include "common_ind.hpp"
 
 int
 main(int argc, char **argv)
@@ -69,6 +70,14 @@ main(int argc, char **argv)
     const auto rec
         = fwdpp::recbinder(fwdpp::poisson_xover(littler, 0., 1.), r.get());
     std::cout << "starting" << "\n" ;
+	
+	std::string filename = "time.txt" ;
+    std::ofstream out ;
+    out.open(filename.c_str()) ;
+    // START CLOCK
+    time_t begin, end;
+    begin = time(0);
+
     while (nreps--)
         {
             singlepop_t pop(N);
@@ -157,5 +166,8 @@ main(int argc, char **argv)
                 }
 #endif
         }
+        end = time(0);
+	int TimeTaken = int(difftime(end,begin)) ;
+	out << "hours:min:sec " << TimeTaken/3600 << ":" << (TimeTaken%3600)/60 << ":" << TimeTaken%60 << "\n" ;
     return 0;
 }

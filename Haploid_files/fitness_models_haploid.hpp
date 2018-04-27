@@ -21,7 +21,7 @@ struct multiplicative_haploid
     {
         double product = 1.0 ;
         for(const std::uint32_t &key : g.smutations){
-            product *= (1.0 + mutations[key].s) ;
+            product *= (1.0 - mutations[key].s) ;
         }
         return std::max(0., product);
     }

@@ -34,20 +34,15 @@ main(int argc, char **argv)
             exit(0);
         }
     int argument = 1;
-    const unsigned N = unsigned(atoi(argv[argument++])); // Number of diploids
-    const double theta = atof(argv[argument++]); // 4*n*mutation rate.  Note:
-                                                 // mutation rate is per
-                                                 // REGION, not SITE!!
-    const double rho = atof(argv[argument++]);   // 2*n*recombination rate.
-                                                 // Note: recombination rate is
-                                                 // per REGION, not SITE!!
-    const double fragsize = (atof(argv[argument++])); // need fragsize and mean rec tract length
-    const double meantrlen = (atof(argv[argument++])); // to compute rec sizes on [0,1] interval
+    const unsigned N = unsigned(atoi(argv[argument++])); // Number of haploids
+    const double theta = atof(argv[argument++]); // 2*n*u PER REGION
+    const double rho = atof(argv[argument++]);   // 2*n*r PER REGION
+    const double fragsize = (atof(argv[argument++])); // Size of DNA frag, for homologous rec
+    const double meantrlen = (atof(argv[argument++])); // mean tract length of DNA transferred
     const unsigned ngens = unsigned(atoi(argv[argument++])); // Number of generations to simulate
     const unsigned samplesize1 = unsigned(atoi(argv[argument++])); // Sample size to draw from the population
     int nreps = atoi(argv[argument++]); // Number of replicates to simulate
     const unsigned seed = unsigned(atoi(argv[argument++])); // Random number seed
-    
     
     const double mu = theta / double(2 * N); // per-gamete mutation rate
     const double littler = rho / double(2 * N);// per-gamete reconbination rate
@@ -55,7 +50,7 @@ main(int argc, char **argv)
     // Write the command line to stderr
     std::copy(argv, argv + argc, std::ostream_iterator<char *>(std::cerr, " "));
     std::cerr << '\n';
-
+    // Write the command line to output file
     std::copy(argv, argv + argc, std::ostream_iterator<char *>(std::cout, " "));
     std::cout << '\n';
     // Initiate random number generation system (via fwdpp/sugar/GSLrng_t.hpp)
