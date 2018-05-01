@@ -104,13 +104,11 @@ sample_haploid_structure(
       Compiling in a 'debug' mode slows simulations down several-fold.
     */
 
-    // test preconditions in debugging mode
-    //std::cout << "in sample_haploid\n" ;
+    // DEBUG
     assert(happopdata_sane(haploids, gametes, mutations, mcounts));
     assert(mcounts.size() == mutations.size());
     assert(check_sum(gametes, N_curr)); // BA: uses Kevin's check_sum func to cycle through gametes, counting n
     assert(mcounts.size() == mutations.size());
-    //std::cout << "init N: " << get_sum(gametes) << "\n" ;
 
     /*
       The mutation and gamete containers contain both extinct and extant
@@ -141,21 +139,19 @@ sample_haploid_structure(
     double wbar = 0.; // pop'n mean fitness
     for (uint_t i = 0; i < N_curr; ++i)
         {
-            //std::cout << "gamete" << i << ":  " << gametes[i].n << "\t" ;
             //from fitness_models_haploid.cpp, ff returns double
             fitnesses[i] = ff(gametes[haploids[i]], mutations);
-            //std::cout << "fitness: " << fitnesses[i] << "\n" ;
             gametes[haploids[i]].n = 0;
             wbar += fitnesses[i];
         }
-    //std::cout << "\n" ;
     // divide by popsize, which may != ngametes since gametes may have n>1
     wbar /= double(N_curr);
-#ifndef NDEBUG
+
+    // DEBUG
     for (const auto &g : gametes)
         assert(!g.n);
-#endif
 
+    
     /*
       This is a lookup table for rapid sampling of diploids proportional to
       their fitnesses.
@@ -182,45 +178,28 @@ sample_haploid_structure(
             // Donor for recombination
             // RANDOMLY sample for recombinant
             auto p2 = gsl_rng_uniform_int(r, N_curr) ;
-          
-            //std::cout << p1 << "\t" << p2 << "\n" ;
             
             assert(p1 < parents.size());
             assert(p2 < parents.size());
 
             auto h1 = parents[p1] ; // need to cp from parents,
             auto h2 = parents[p2] ; // haploids being modified
-            // # brkpoints, # new muts
-            //std::tuple<int,int> tmp ;
 
             mutate_recombine_update_haploid(
                 r, gametes, mutations,
                 std::make_tuple(h1, h2), rec_pol, mmodel,
                 mu, gam_recycling_bin, mut_recycling_bin, hap,
                 neutral, selected);
-            //if( std::get<1>(tmp) ){
-            //    std::cout << "NEW MUTATIONS\n" ;
-            //}
-            //std::cout << get_sum(gametes) << "\n" ;
     }
-    /*
-    std::cout << "AFTER MUT\n" ;
-    for (std::size_t i = 0; i < ngametes; ++i)
-    {
-        std::cout << "gamete" << i << ":  " << gametes[i].n << "\t" ;
-    }
-    std::cout << "\n" ;
-    std::cout << "N aft: " << get_sum(gametes) << "\n" ;
-     */
+
+    // DEBUG
     assert(check_sum(gametes, N_next));
-//#ifndef NDEBUG
-    
     for (const auto &hap : haploids)
         {
             assert(gametes[hap].n > 0);
             assert(gametes[hap].n <= N_next);
         }
-//#endif
+     
     /*
       At the end of the above loop, we have a bunch of new diploids
       that are all recombined and mutated sampling of the parental
@@ -235,32 +214,19 @@ sample_haploid_structure(
       most computationally-expensive part of a simulation once mutation
       rates are large.
 
-      Further, the function is hard to optimize. Recall that gametes store
-      mutations in order
-      according to position.  Thus, when we go from a gamete to a position
-      in mcounts, we are
-      accessing the latter container out of order with respect to location
-      in memory.  process_gametes
-      is thus the "scatter" part of a "scatter-gather" idiom.  Modern x86
-      CPU have little available
-      for vectorizing such cases.  I've experimented with CPU intrinsics to
-      attempt memory prefetches,
-      but never saw any performance improvement, and the code got complex,
-      and possibly less portable.
-
       The implementation is in fwdpp/internal/sample_diploid_helpers.hpp
      */
     fwdpp_internal::process_gametes(gametes, mutations, mcounts);
     assert(mcounts.size() == mutations.size());
-#ifndef NDEBUG
+
+    // DEBUG
     for (const auto &mc : mcounts)
         {
-            assert(mc <= 2 * N_next);
+            assert(mc <= N_next);
         }
-#endif
-
     assert(happopdata_sane(haploids, gametes, mutations, mcounts));
 
+    
     /*
       The last thing to do is handle fixations.  In many contexts, we
       neither want nor need
@@ -269,18 +235,6 @@ sample_haploid_structure(
       simple policies, which are in the variable 'mp'.
 
       The implementation is in fwdpp/internal/gamete_cleaner.hpp.
-
-      The implementation is the "erase/remove idiom" (Effective STL, Item
-      32), but with a twist
-      that the function will exit early if there are no fixations present
-      in the population at
-      the moment.
-
-      Example policies are fwdpp::remove_nothing and fwdpp::remove_neutral,
-      both found
-      in fwdpp/fwd_functional.hpp.  If mp is std::true_type, then all
-      fixations (e.g., neutral
-      and selected)  will be removed from all gametes.
     */
     fwdpp_internal::gamete_cleaner(gametes, mutations, mcounts, N_next,
                                    mp);

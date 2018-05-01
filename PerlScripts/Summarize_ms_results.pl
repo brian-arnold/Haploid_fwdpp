@@ -4,8 +4,13 @@ use strict ;
 use lib "/n/holyscratch/bomblies_lab/bjarnold/List-MoreUtils-0.33/lib" ;
 use List::Util qw(first max maxstr min minstr reduce shuffle sum) ;
 
-#open TESTOUT, ">./testout.txt" ;
+#############################################
+# THIS SCRIPT LOOKS THROUGH A FILE OF MS-LIKE
+# OUTPUT, ANALYZES A SINGLE REPLICATE
+#############################################
 
+my $file = $ARGV[0] ;
+my $rep = $ARGV[1] ;
 
 open QC, ">./QC.txt" ;
 
@@ -17,14 +22,12 @@ my $rec_rate ;
 my $theta ;
 my $gene_conv_rate ;
 my $TrLen ;
-my $min_AF = 0.4 ;
-my $max_AF = 0.6 ;
-
+my $min_AF = 0.0 ;
+my $max_AF = 1.0 ;
 
 my $lower ;
 my $upper ;
 my $middle ;
-
 
 #############################################
 # DATA STRUCTURES
@@ -52,11 +55,12 @@ my %PairWise_PC_dist_slice ;
 #############################################
 # ASSEMBLE SEQUENCES PER GENE PER IND
 #############################################
-open IN, "<../test.txt" ;
+my $replicate = 0 ;
+open IN, "<./${file}" ;
 my $num_segsites_raw = 0 ;
 while(<IN>){
 	chomp $_ ;
-	if($_ =~ m/^\.\/haploid_ind/ ){ # command used with arguments
+	if($_ =~ m/^\.\/haploid/ ){ # command used with arguments
 		my @line = split(" ", $_) ;
 		$pop_size = $line[1] ;
 		$Sample_size = $line[7] ;
@@ -66,20 +70,32 @@ while(<IN>){
 		$num_sites = $line[4] ;
 		$TrLen = $line[5] ;
 	}
+	if($_ =~ m/^\.\/ms/ ){ # command used with arguments
+		my @line = split(" ", $_) ;
+		$Sample_size = $line[1] ;
+		$num_reps = $line[2] ;
+		$theta = $line[4] ;
+		$rec_rate = $line[9] ;
+		$num_sites = $line[7] ;
+		$TrLen = $line[10] ;
+	}
 	if($_ =~ m/\/\//){ # beginning of replicate
-		my $segsitesline = <IN> ; chomp $segsitesline ;
-		my @line = split(" ", $segsitesline) ;
-		$num_segsites_raw = $line[1] ;
+		$replicate++ ;
+		if($replicate == $rep){
+			my $segsitesline = <IN> ; chomp $segsitesline ;
+			my @line = split(" ", $segsitesline) ;
+			$num_segsites_raw = $line[1] ;
 		
-		my $positionsline = <IN> ; chomp $positionsline ;
-		@line = split(" ", $positionsline) ;
-		foreach my $x ( 1..$num_segsites_raw ){
-			$Segsites{($x-1)} = (int($line[$x]*$num_sites)) ;
-		}
+			my $positionsline = <IN> ; chomp $positionsline ;
+			@line = split(" ", $positionsline) ;
+			foreach my $x ( 1..$num_segsites_raw ){
+				$Segsites{($x-1)} = (int($line[$x]*$num_sites)) ;
+			}
 		
-		foreach my $ind (0..($Sample_size-1)){
-			my $x = <IN> ; chomp $x ;
-			$Seq_data{ $ind } = $x ;
+			foreach my $ind (0..($Sample_size-1)){
+				my $x = <IN> ; chomp $x ;
+				$Seq_data{ $ind } = $x ;
+			}
 		}
 	}
 }
@@ -238,21 +254,23 @@ my $a2 = (($a1**2) - $a1_square)/2 ;
 my $c2 = (4*$a1/3) - (7*$a2/(3*$a1)) ;
 $FiniteSites_Theta = $SumStat_Results{"S_star"}/($a1 - ($c2*$SumStat_Results{"S_star"})) ;
 
+=begin
 foreach my $key (sort {$a <=> $b} keys %AFS_forPrinting){
 	print $key, "\t", $AFS_forPrinting{$key}, "\n" ;
 }
-
-open OUT, ">./Summaries.txt" ;
-print OUT "FiniteSites_Theta", "\t", $FiniteSites_Theta, "\n" ;
+=cut
+open OUT, ">./Summaries_rep${rep}.txt" ;
+print OUT $rep, "\t", "FiniteSites_Theta", "\t", $FiniteSites_Theta, "\n" ;
+print OUT $rep, "\t", "Average_D'", "\t" ;
+$sum = 0 ;
+my $total = 0 ;
 foreach my $dist (sort{$a<=>$b} keys %PairWise_LD_vs_dist){
-	print OUT $dist, "\t" ;
-	 my $sum = 0 ;
 	 foreach (@{$PairWise_LD_vs_dist{$dist}}){
 	 	$sum += $_ ;
 	 }
-	 print OUT $sum/(scalar @{$PairWise_LD_vs_dist{$dist}}), "\n" ;
-	
+	 $total += (scalar @{$PairWise_LD_vs_dist{$dist}}) ;
 }
+print OUT $sum/$total, "\n" ;
 close OUT ;
 
 exit ;

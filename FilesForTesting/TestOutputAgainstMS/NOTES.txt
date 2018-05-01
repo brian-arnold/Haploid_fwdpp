@@ -1,0 +1,19 @@
+# COMMANDS FOR RUNNING SIMULATIONS
+./haploid_struct_neutral 1000 100 100 100000 300 10000 50 1 $RANDOM
+./haploid_ind_neutral 1000 100 100 100000 300 10000 50 1 $RANDOM
+
+./msdir/ms 50 100 -t 100 -r 0 100000 -c 100 300
+
+
+# COMMANDS FOR RUNNING PERL SCRIPT TO SUMMARIZE
+ perl ../../PerlScripts/Summarize_ms_results.pl ms_output.txt 2
+	# for replicate 2 
+
+
+
+
+STEP 1: run simulator, produce output that basically concatenates results separated by //
+STEP 2: summarize simulations with 01_Automate_summarize.pl, which computes summaries
+	per replicate, concatenate these files into one file
+STEP 3: use 02_analyze_quantiles_of_summaries.pl to look at quantiles of diversity and
+	LD sttistics

@@ -53,11 +53,6 @@ generate_breakpoints_haploid(const std::size_t g1, const std::size_t g2,
         {
             return {};
         }
-    /*
-    return dispatch_recombination_policy(
-        std::cref(rec_pol), std::cref(diploid), std::cref(gametes[g1]),
-        std::cref(gametes[g2]), std::cref(mutations));
-    */
     return rec_pol() ;
 }
 
@@ -140,17 +135,11 @@ mutate_recombine_update_haploid(
 /// \param mu Total mutation rate (per gamete).
 /// \param gamete_recycling_bin FIFO queue for gamete recycling
 /// \param mutation_recycling_bin FIFO queue for mutation recycling
-/// \param dip The offspring
 /// \param neutral Temporary container for updating neutral mutations
 /// \param selected Temporary container for updating selected mutations
 ///
 /// \return Number of recombination breakpoints and mutations for each
 /// gamete.
-///
-/// \note
-/// \a parental_gametes should contain parent one/gamete one,
-/// parent one/gamete two, parent two/gamete one,
-/// and parent two/gamete two, in that order.
 ///
 /// \version
 /// Added in fwdpp 0.5.7.
@@ -170,19 +159,9 @@ mutate_recombine_update_haploid(
     auto breakpoints
             = generate_breakpoints_haploid(p1, p2, gametes, mutations,
                                            rec_pol);
-    /*
-    std::cout << breakpoints.size() << "\n" ;
-    for(unsigned i=0; i<breakpoints.size(); i++){
-        std::cout << breakpoints[i] << "\t" ;
-    }
-    std::cout << "\n" ;
-     */
     auto new_mutations
         = generate_new_mutations_haploid(mutation_recycling_bin, r, mu,
                                  gametes, mutations, p1, mmodel);
-    //auto new_mutations2
-        //= generate_new_mutations(mutation_recycling_bin, r, mu, dip,
-                                 //gametes, mutations, p2g1, mmodel);
 
     // Pass the breakpoints and new mutation keys on to
     // fwdpp::mutate_recombine (defined in
@@ -198,16 +177,8 @@ mutate_recombine_update_haploid(
     auto p1newIdx = fwdpp::mutate_recombine(new_mutations, breakpoints, p1, p2,
                                  gametes, mutations, gamete_recycling_bin,
                                  neutral, selected);
-    //dip.second = mutate_recombine(new_mutations2, breakpoints2, p2g1, p2g2,
-                                  //gametes, mutations, gamete_recycling_bin,
-                                  //neutral, selected);
     gametes[p1newIdx].n++;
     assert(gametes[p1newIdx].n);
-
-    //auto nrec = (!breakpoints.empty()) ? breakpoints.size() - 1 : 0;
-    //auto nrec2 = (!breakpoints2.empty()) ? breakpoints2.size() - 1 : 0;
-    //return std::make_tuple(nrec, nrec2, new_mutations.size(),
-                           //new_mutations2.size());
     
     return std::make_tuple( breakpoints.size(), new_mutations.size() );
 
@@ -251,28 +222,19 @@ mutate_recombine_update_haploid(
 /// \param mu Total mutation rate (per gamete).
 /// \param gamete_recycling_bin FIFO queue for gamete recycling
 /// \param mutation_recycling_bin FIFO queue for mutation recycling
-/// \param dip The offspring
+/// \param hap The offspring
 /// \param neutral Temporary container for updating neutral mutations
 /// \param selected Temporary container for updating selected mutations
 ///
 /// \return Number of recombination breakpoints and mutations for each
 /// gamete.
 ///
-/// \note
-/// \a parental_gametes should contain parent one/gamete one,
-/// parent one/gamete two, parent two/gamete one,
-/// and parent two/gamete two, in that order.
 ///
 /// \version
 /// Added in fwdpp 0.5.7.
 {
     auto p1 = std::get<0>(parental_gametes);
     auto p2 = std::get<1>(parental_gametes);
-    // Now, we generate the crossover breakpoints for
-    // both parents,as well as the new mutations that we'll place
-    // onto each gamete.  The specific order of operations below
-    // is done to ensure the exact same output as fwdpp 0.5.6 and
-    // earlier.
     // The breakpoints are of type std::vector<double>, and
     // the new_mutations are std::vector<fwdpp::uint_t>, with
     // the integers representing the locations of the new mutations
@@ -281,19 +243,9 @@ mutate_recombine_update_haploid(
     auto breakpoints
     = generate_breakpoints_haploid(p1, p2, gametes, mutations,
                                    rec_pol);
-    /*
-     std::cout << breakpoints.size() << "\n" ;
-     for(unsigned i=0; i<breakpoints.size(); i++){
-     std::cout << breakpoints[i] << "\t" ;
-     }
-     std::cout << "\n" ;
-     */
     auto new_mutations
     = generate_new_mutations_haploid(mutation_recycling_bin, r, mu,
                                      gametes, mutations, p1, mmodel);
-    //auto new_mutations2
-    //= generate_new_mutations(mutation_recycling_bin, r, mu, dip,
-    //gametes, mutations, p2g1, mmodel);
     
     // Pass the breakpoints and new mutation keys on to
     // fwdpp::mutate_recombine (defined in
@@ -309,16 +261,8 @@ mutate_recombine_update_haploid(
     hap = fwdpp::mutate_recombine(new_mutations, breakpoints, p1, p2,
                                             gametes, mutations, gamete_recycling_bin,
                                             neutral, selected);
-    //dip.second = mutate_recombine(new_mutations2, breakpoints2, p2g1, p2g2,
-    //gametes, mutations, gamete_recycling_bin,
-    //neutral, selected);
     gametes[hap].n++;
     assert(gametes[hap].n);
-    
-    //auto nrec = (!breakpoints.empty()) ? breakpoints.size() - 1 : 0;
-    //auto nrec2 = (!breakpoints2.empty()) ? breakpoints2.size() - 1 : 0;
-    //return std::make_tuple(nrec, nrec2, new_mutations.size(),
-    //new_mutations2.size());
     
     return std::make_tuple( breakpoints.size(), new_mutations.size() );
     
