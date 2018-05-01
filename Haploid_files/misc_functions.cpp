@@ -20,6 +20,27 @@ uint_t get_sum(const std::vector<gamete> &gametes)
     return sum ;
 }
 
+
+template <typename hapcont_t, typename gcont_t, typename mcont_t>
+bool
+happopdata_sane(const hapcont_t &haploids, const gcont_t &gametes,
+             const mcont_t &mutations,
+             const std::vector<uint_t> &mutcounts)
+/*
+ \brief Check that all haploids refer to extant gametes with sane data.
+ */
+{
+    for (const auto &h : haploids)
+    {
+        if (!gametes[h].n)
+            return false;
+        if (!gamete_data_sane(gametes[h], mutations, mutcounts))
+            return false;
+    }
+    return true;
+}
+
+
 template <typename gamete_type,
             typename gamete_cont_type_allocator,
             template <typename, typename> class gamete_cont_type>
@@ -31,7 +52,8 @@ group_haps_into_dips(const gsl_rng *r,
     using diploid_t = std::pair<std::size_t, std::size_t> ;
     using dipvector_t = std::vector<diploid_t> ;
 
-    int gcounts[ gametes.size() ] ;
+    int popsize = get_sum(gametes) ;
+    int gcounts[ popsize ] ;
     int k = 0 ;
     for (int i = 0; i < gametes.size(); i++){
         if(gametes[i].n){
@@ -46,7 +68,7 @@ group_haps_into_dips(const gsl_rng *r,
         std::cout << gcounts[i] << " " ;
     }
     std::cout << "\n" ;
-     */
+    */
     //shuffle gcounts  so that "diploids" represent random pairs
     //double randomize for good measure? probably unecessary
     gsl_ran_shuffle( r, gcounts, k, sizeof(int) ) ;

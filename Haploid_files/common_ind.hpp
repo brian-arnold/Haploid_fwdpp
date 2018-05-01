@@ -15,10 +15,10 @@
    to including this header, and is an alias to the simulation's
    mutation type
 */
-#ifdef SINGLEPOP_SIM
-#include "gametepop_defn.hpp"
+#include "pop_defns.hpp"
 using singlepop_t = gametepop_obj<mtype>;
-#endif
+using structpop_t = gametepopstruct_obj<mtype>;
+
 
 // RNG type
 #include <fwdpp/sugar/GSLrng_t.hpp>

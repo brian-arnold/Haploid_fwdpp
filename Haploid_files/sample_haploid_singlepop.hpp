@@ -1,5 +1,5 @@
-#ifndef __FWDPP_SAMPLE_HAPLOID_HPP__
-#define __FWDPP_SAMPLE_HAPLOID_HPP__
+#ifndef __SAMPLING_FUNCTIONS_HPP__
+#define __SAMPLING_FUNCTIONS_HPP__
 
 #include <utility>
 #include <vector>
@@ -38,6 +38,9 @@ using namespace fwdpp ;
   \example pfix.cc
   \example diploid_fixed_sh_ind_lambda.cc
 */
+//
+// single deme, constant N
+//
 template <typename gamete_type, typename gamete_cont_type_allocator,
           typename mutation_type, typename mutation_cont_type_allocator,
           typename haploid_fitness_function, typename mutation_model,
@@ -46,20 +49,20 @@ template <typename gamete_type, typename gamete_cont_type_allocator,
           template <typename, typename> class mutation_cont_type,
           typename mutation_removal_policy = std::true_type>
 double sample_haploid(
-    // 13 args
-    const gsl_rng *r,
-    gamete_cont_type<gamete_type, gamete_cont_type_allocator> &gametes,
-    mutation_cont_type<mutation_type, mutation_cont_type_allocator> &mutations,
-    std::vector<uint_t> &mcounts,
-    const uint_t &N_curr,
-    const double &mu,
-    const mutation_model &mmodel,
-    const recombination_policy &rec_pol,
-    const haploid_fitness_function &ff,
-    typename gamete_type::mutation_container &neutral,
-    typename gamete_type::mutation_container &selected,
-    const double f = 0.,
-    const mutation_removal_policy mp = mutation_removal_policy());
+        // 13 args
+        const gsl_rng *r,
+        gamete_cont_type<gamete_type, gamete_cont_type_allocator> &gametes,
+        mutation_cont_type<mutation_type, mutation_cont_type_allocator> &mutations,
+        std::vector<uint_t> &mcounts,
+        const uint_t &N_curr,
+        const double &mu,
+        const mutation_model &mmodel,
+        const recombination_policy &rec_pol,
+        const haploid_fitness_function &ff,
+        typename gamete_type::mutation_container &neutral,
+        typename gamete_type::mutation_container &selected,
+        const double f = 0.,
+        const mutation_removal_policy mp = mutation_removal_policy());
 
 /*! \brief Sample the next generation of dipliods in an individual-based
   simulation.  Changing population size case.
@@ -90,6 +93,9 @@ double sample_haploid(
   \return The mean fitness of the parental generation
   \example bneck_selection_ind.cc
 */
+//
+// single deme, N changing
+//
 template <typename gamete_type, typename gamete_cont_type_allocator,
           typename mutation_type, typename mutation_cont_type_allocator,
           typename haploid_fitness_function, typename mutation_model,
@@ -98,23 +104,24 @@ template <typename gamete_type, typename gamete_cont_type_allocator,
           template <typename, typename> class mutation_cont_type,
           typename mutation_removal_policy = std::true_type>
 double sample_haploid(
-    // 14 args
-    const gsl_rng *r,
-    gamete_cont_type<gamete_type, gamete_cont_type_allocator> &gametes,
-    mutation_cont_type<mutation_type, mutation_cont_type_allocator> &mutations,
-    std::vector<uint_t> &mcounts,
-    const uint_t &N_curr,
-    const uint_t &N_next,
-    const double &mu,
-    const mutation_model &mmodel,
-    const recombination_policy &rec_pol,
-    const haploid_fitness_function &ff,
-    typename gamete_type::mutation_container &neutral,
-    typename gamete_type::mutation_container &selected,
-    const double f = 0.,
-    const mutation_removal_policy mp = mutation_removal_policy());
+        // 14 args
+        const gsl_rng *r,
+        gamete_cont_type<gamete_type, gamete_cont_type_allocator> &gametes,
+        mutation_cont_type<mutation_type, mutation_cont_type_allocator> &mutations,
+        std::vector<uint_t> &mcounts,
+        const uint_t &N_curr,
+        const uint_t &N_next,
+        const double &mu,
+        const mutation_model &mmodel,
+        const recombination_policy &rec_pol,
+        const haploid_fitness_function &ff,
+        typename gamete_type::mutation_container &neutral,
+        typename gamete_type::mutation_container &selected,
+        const double f = 0.,
+        const mutation_removal_policy mp = mutation_removal_policy());
 
 // this needs to be included after, o.w. compiler doesnt like adding defaults to
 //func tmeplate already declared
-#include "sample_haploid.cpp"
+//#include "sample_haploid_singlepop.cpp"
+
 #endif

@@ -9,7 +9,7 @@
 
 using namespace fwdpp ;
 
-struct multiplicative_haploid
+struct multiplicative_negseln_haploid
 {
     
     template<typename gamete_type, typename mtype>

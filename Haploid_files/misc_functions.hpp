@@ -12,6 +12,15 @@ using namespace fwdpp ;
 
 uint_t get_sum(const std::vector<gamete> &gametes) ;
 
+
+template <typename hapcont_t, typename gcont_t,
+            typename mcont_t>
+bool
+happopdata_sane(const hapcont_t &haploids, const gcont_t &gametes,
+             const mcont_t &mutations,
+             const std::vector<uint_t> &mutcounts) ;
+
+
 template <typename gamete_type,
             typename gamete_cont_type_allocator,
             template <typename, typename> class gamete_cont_type>

@@ -23,47 +23,6 @@
 
 using namespace fwdpp ;
 
-// I THINK YOU CAN DUMP ALL THIS DISPATCH STUFF???
-/*
-template <typename recombination_policy, typename diploid_t,
-          typename gamete_t, typename mcont_t>
-inline typename std::result_of<recombination_policy()>::type
-dispatch_recombination_policy(const recombination_policy &rec_pol,
-                              diploid_t &&, gamete_t &&, gamete_t &&,
-                              mcont_t &&)
-{
-    return rec_pol();
-}
-
-template <typename recombination_policy, typename diploid_t,
-          typename gamete_t, typename mcont_t>
-inline
-    typename std::result_of<recombination_policy(gamete_t &&, gamete_t &&,
-                                                 mcont_t &&)>::type
-    dispatch_recombination_policy(const recombination_policy &rec_pol,
-                                  diploid_t &&, gamete_t &&g1,
-                                  gamete_t &&g2, mcont_t &&mutations)
-{
-    return rec_pol(std::forward<gamete_t>(g1), std::forward<gamete_t>(g2),
-                   std::forward<mcont_t>(mutations));
-}
-
-template <typename recombination_policy, typename diploid_t,
-          typename gamete_t, typename mcont_t>
-inline typename std::result_of<recombination_policy(
-    diploid_t &&, gamete_t &&, gamete_t &&, mcont_t &&)>::type
-dispatch_recombination_policy(const recombination_policy &rec_pol,
-                              diploid_t &&diploid, gamete_t &&g1,
-                              gamete_t &&g2, mcont_t &&mutations)
-{
-    return rec_pol(std::forward<diploid_t>(diploid),
-                   std::forward<gamete_t>(g1), std::forward<gamete_t>(g2),
-                   std::forward<mcont_t>(mutations));
-}
- */
-
-
-
 template <typename recombination_policy, typename gcont_t,
             typename mcont_t>
 std::vector<double>
@@ -254,6 +213,118 @@ mutate_recombine_update_haploid(
 
     
 }
+
+
+
+// Overloaded function that also takes container of haploids
+// containing keys to gametes, which aren't exchangeable with structure
+template <typename haploid_t, typename gcont_t, typename mcont_t,
+typename recmodel, typename mutmodel>
+std::tuple<std::size_t, std::size_t>
+mutate_recombine_update_haploid(
+                                //11 args
+                                const gsl_rng *r,
+                                gcont_t &gametes,
+                                mcont_t &mutations,
+                                std::tuple<std::size_t, std::size_t> parental_gametes,
+                                const recmodel &rec_pol,
+                                const mutmodel &mmodel,
+                                const double mu,
+                                typename traits::recycling_bin_t<gcont_t> &gamete_recycling_bin,
+                                typename traits::recycling_bin_t<mcont_t> &mutation_recycling_bin,
+                                haploid_t &hap,
+                                typename gcont_t::value_type::mutation_container &neutral,
+                                typename gcont_t::value_type::mutation_container &selected)
+///
+/// "Convenience" function for generating offspring gametes.
+///
+/// This function calls fwdpp::generate_breakpoints,
+/// fwdpp::generate_new_mutations, and fwdpp::mutate_recombine,
+/// resulting in two offspring gametes.
+///
+/// \param r A gsl_rng *
+/// \param gametes Vector of gametes in population
+/// \param mutations Vector of mutations in population
+/// \param parental_gametes Tuple of gamete keys for each parent
+/// \param rec_pol Policy to generate recombination breakpoints
+/// \param mmodel Policy to generate new mutations
+/// \param mu Total mutation rate (per gamete).
+/// \param gamete_recycling_bin FIFO queue for gamete recycling
+/// \param mutation_recycling_bin FIFO queue for mutation recycling
+/// \param dip The offspring
+/// \param neutral Temporary container for updating neutral mutations
+/// \param selected Temporary container for updating selected mutations
+///
+/// \return Number of recombination breakpoints and mutations for each
+/// gamete.
+///
+/// \note
+/// \a parental_gametes should contain parent one/gamete one,
+/// parent one/gamete two, parent two/gamete one,
+/// and parent two/gamete two, in that order.
+///
+/// \version
+/// Added in fwdpp 0.5.7.
+{
+    auto p1 = std::get<0>(parental_gametes);
+    auto p2 = std::get<1>(parental_gametes);
+    // Now, we generate the crossover breakpoints for
+    // both parents,as well as the new mutations that we'll place
+    // onto each gamete.  The specific order of operations below
+    // is done to ensure the exact same output as fwdpp 0.5.6 and
+    // earlier.
+    // The breakpoints are of type std::vector<double>, and
+    // the new_mutations are std::vector<fwdpp::uint_t>, with
+    // the integers representing the locations of the new mutations
+    // in "mutations".
+    
+    auto breakpoints
+    = generate_breakpoints_haploid(p1, p2, gametes, mutations,
+                                   rec_pol);
+    /*
+     std::cout << breakpoints.size() << "\n" ;
+     for(unsigned i=0; i<breakpoints.size(); i++){
+     std::cout << breakpoints[i] << "\t" ;
+     }
+     std::cout << "\n" ;
+     */
+    auto new_mutations
+    = generate_new_mutations_haploid(mutation_recycling_bin, r, mu,
+                                     gametes, mutations, p1, mmodel);
+    //auto new_mutations2
+    //= generate_new_mutations(mutation_recycling_bin, r, mu, dip,
+    //gametes, mutations, p2g1, mmodel);
+    
+    // Pass the breakpoints and new mutation keys on to
+    // fwdpp::mutate_recombine (defined in
+    // fwdpp/mutate_recombine.hpp),
+    // which splices together the offspring gamete and returns its
+    // location in gametes.  The location of the offspring gamete
+    // is
+    // either reycled from an extinct gamete or it is the location
+    // of a
+    // new gamete emplace_back'd onto the end.
+    
+    
+    hap = fwdpp::mutate_recombine(new_mutations, breakpoints, p1, p2,
+                                            gametes, mutations, gamete_recycling_bin,
+                                            neutral, selected);
+    //dip.second = mutate_recombine(new_mutations2, breakpoints2, p2g1, p2g2,
+    //gametes, mutations, gamete_recycling_bin,
+    //neutral, selected);
+    gametes[hap].n++;
+    assert(gametes[hap].n);
+    
+    //auto nrec = (!breakpoints.empty()) ? breakpoints.size() - 1 : 0;
+    //auto nrec2 = (!breakpoints2.empty()) ? breakpoints2.size() - 1 : 0;
+    //return std::make_tuple(nrec, nrec2, new_mutations.size(),
+    //new_mutations2.size());
+    
+    return std::make_tuple( breakpoints.size(), new_mutations.size() );
+    
+    
+}
+
 
 
 #endif

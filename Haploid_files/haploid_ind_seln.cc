@@ -26,25 +26,28 @@ using mtype = fwdpp::popgenmut;
 int
 main(int argc, char **argv)
 {
-    if (argc != 10)
+    if (argc != 12)
         {
             std::cerr << "Too few arguments\n"
-                      << "Usage: diploid_ind N theta rho fragsize meantrlen ngens samplesize "
+                      << "Usage: diploid_ind N theta_neutral rho fragsize meantrlen ngens samplesize "
                          "nreps seed\n";
             exit(0);
         }
     int argument = 1;
     const unsigned N = unsigned(atoi(argv[argument++])); // Number of haploids
-    const double theta = atof(argv[argument++]); // 2*n*u PER REGION
+    const double theta_neutral = atof(argv[argument++]); // 2*n*u PER REGION
+    const double theta_sel = atof(argv[argument++]); // 2*n*u PER REGION
     const double rho = atof(argv[argument++]);   // 2*n*r PER REGION
     const double fragsize = (atof(argv[argument++])); // Size of DNA frag, for homologous rec
     const double meantrlen = (atof(argv[argument++])); // mean tract length of DNA transferred
+    const double s = atof(argv[argument++]);
     const unsigned ngens = unsigned(atoi(argv[argument++])); // Number of generations to simulate
     const unsigned samplesize1 = unsigned(atoi(argv[argument++])); // Sample size to draw from the population
     int nreps = atoi(argv[argument++]); // Number of replicates to simulate
     const unsigned seed = unsigned(atoi(argv[argument++])); // Random number seed
     
-    const double mu = theta / double(2 * N); // per-gamete mutation rate
+    const double mu_neutral = theta_neutral / double(2 * N); // per-gamete mutation rate
+    const double mu_sel = theta_sel / double(2 * N); // per-gamete mutation rate
     const double littler = rho / double(2 * N);// per-gamete reconbination rate
 
     // Write the command line to stderr
@@ -68,6 +71,7 @@ main(int argc, char **argv)
     //hrec(r.get()) ;
     
     const auto rec = fwdpp::recbinder(homologous_rec(littler, 0., 1., meantrlen, fragsize), r.get());
+    const double pselected = mu_sel / (mu_sel + mu_neutral);
     /*
     for(int i=0; i< 10; i++){
         std::vector<double> tmp = rec() ;
@@ -101,10 +105,10 @@ main(int argc, char **argv)
 
 
 
-            pop.mutations.reserve(size_t(std::ceil(std::log(2 * N) * theta + 0.667 * theta)));
+            pop.mutations.reserve(size_t(std::ceil(std::log(2 * N) * theta_neutral + 0.667 * theta_neutral)));
             unsigned generation = 0;
             double wbar;
-
+            /*
             // MUTATION MODEL, NEUTRAL
             const auto mmodel =
                 [&pop, &r, &generation](std::queue<std::size_t> &recbin,
@@ -114,6 +118,15 @@ main(int argc, char **argv)
                         0.0, [&r]() { return gsl_rng_uniform(r.get()); },
                         []() { return 0.0; }, []() { return 0.0; });
                 };
+             */
+            // MUTATION MODEL, SEL
+            const auto mmodel = [&pop, &r, &generation, s, pselected](std::queue<std::size_t> &recbin,
+                                singlepop_t::mcont_t &mutations) {
+                                    return fwdpp::infsites_popgenmut(
+                                         recbin, mutations, r.get(), pop.mut_lookup, generation,
+                                         pselected, [&r]() { return gsl_rng_uniform(r.get()); },
+                                         [s]() { return s; }, []() { return 0.0; });
+            };
             for (generation = 0; generation < ngens; ++generation)
                 {
                     // Iterate the population through 1 generation
@@ -123,7 +136,7 @@ main(int argc, char **argv)
                         pop.mutations, // non-const reference to mutations
                         pop.mcounts,
                         N,  // current pop size, remains constant
-                        mu, // mutation rate per gamete
+                        (mu_neutral + mu_sel), // mutation rate per gamete
                         /*
                           The mutation model will be applied
                           by
@@ -137,7 +150,7 @@ main(int argc, char **argv)
                         Fitness function, can only pass pointers to functions
                          or function objects
                         */
-                        multiplicative_haploid(),
+                        multiplicative_negseln_haploid(),
                         pop.neutral,
                         pop.selected);
                         // 2 more args in template defn but they have defaults

@@ -3,7 +3,7 @@
 SHELL=/usr/bin/env bash -eo pipefail
 
 F=../fwdpp
-P=haploid_ind
+P=haploid_struct_neutral
 
 .SECONDARY:
 

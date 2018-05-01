@@ -35,7 +35,9 @@
 
 // personal haploid headers
 #include "fitness_models_haploid.hpp"
-#include "sample_haploid.hpp"
+//#include "sample_haploid_singlepop.hpp"
+#include "sample_haploid_singlepop.cpp"
+#include "sample_haploid_structure.cpp"
 #include "homologous_recpol.hpp"
 
 #endif

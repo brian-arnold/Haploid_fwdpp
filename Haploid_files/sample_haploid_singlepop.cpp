@@ -6,8 +6,8 @@
   \brief Definitions of functions for evolving populations of diploids.
 */
 
-#ifndef __FWDPP_SAMPLE_HAPLOID_CPP__
-#define __FWDPP_SAMPLE_HAPLOID_CPP__
+#ifndef __SAMPLE_HAPLOID_CPP__
+#define __SAMPLE_HAPLOID_CPP__
 
 #include <iostream>
 #include <fwdpp/debug.hpp>
@@ -15,21 +15,23 @@
 #include <fwdpp/internal/recycling.hpp>
 #include <fwdpp/internal/gsl_discrete.hpp>
 #include <fwdpp/internal/gamete_cleaner.hpp>
-//#include <fwdpp/internal/multilocus_rec.hpp>
 #include <fwdpp/internal/sample_diploid_helpers.hpp>
 #include "misc_functions.hpp"
 #include "mutate_recombine_haploid.hpp"
+#include "sample_haploid_singlepop.hpp"
 
 using namespace fwdpp ;
 
+//
 // single deme, constant N
+//
 template <typename gamete_type, typename gamete_cont_type_allocator,
           typename mutation_type, typename mutation_cont_type_allocator,
           typename haploid_fitness_function, typename mutation_model,
           typename recombination_policy,
           template <typename, typename> class gamete_cont_type,
           template <typename, typename> class mutation_cont_type,
-          typename mutation_removal_policy>
+          typename mutation_removal_policy = std::true_type>
 double
 sample_haploid(
     //13 args
@@ -44,8 +46,8 @@ sample_haploid(
     const haploid_fitness_function &ff,
     typename gamete_type::mutation_container &neutral,
     typename gamete_type::mutation_container &selected,
-    const double f,
-    const mutation_removal_policy mp)
+    const double f = 0.,
+    const mutation_removal_policy mp = mutation_removal_policy())
 {
     // run changing N version with N_next == N_curr
     return sample_haploid(r, gametes, mutations, mcounts, N_curr,
@@ -53,14 +55,16 @@ sample_haploid(
                           selected, f, mp);
 }
 
+//
 // single deme, N changing
+//
 template <typename gamete_type, typename gamete_cont_type_allocator,
           typename mutation_type, typename mutation_cont_type_allocator,
           typename haploid_fitness_function, typename mutation_model,
           typename recombination_policy,
           template <typename, typename> class gamete_cont_type,
           template <typename, typename> class mutation_cont_type,
-          typename mutation_removal_policy>
+            typename mutation_removal_policy = std::true_type>
 double
 sample_haploid(
     //14 args
@@ -76,8 +80,8 @@ sample_haploid(
    const haploid_fitness_function &ff,
    typename gamete_type::mutation_container &neutral,
    typename gamete_type::mutation_container &selected,
-   const double f,
-   const mutation_removal_policy mp)
+   const double f = 0.,
+   const mutation_removal_policy mp = mutation_removal_policy())
 {
     /*
       The main part of fwdpp does not throw exceptions.
@@ -297,7 +301,6 @@ for (const auto &dip : diploids)
                                    mp);
     return wbar;
 }
-
 
 
 #endif
