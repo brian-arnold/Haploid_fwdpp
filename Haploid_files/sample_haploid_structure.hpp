@@ -39,6 +39,8 @@ using namespace fwdpp ;
   \example diploid_fixed_sh_ind_lambda.cc
 */
 
+
+/*
 //
 // For structured deme, constant N, includes haploid vector
 //
@@ -67,7 +69,7 @@ double sample_haploid_structure(
       typename gamete_type::mutation_container &selected,
       const double f = 0.,
       const mutation_removal_policy mp = mutation_removal_policy());
-
+*/
 
 //
 // For structured deme, N changing, includes haploid vector
@@ -81,21 +83,24 @@ template <typename gamete_type, typename gamete_cont_type_allocator,
             template <typename, typename> class mutation_cont_type,
             template <typename, typename> class haploid_vector_type,
             typename mutation_removal_policy = std::true_type>
-double sample_haploid_structure(
-      // 15 args
+void sample_haploid_structure(
+      // 12 args
       const gsl_rng *r,
-      gamete_cont_type<gamete_type, gamete_cont_type_allocator> &gametes,
-      haploid_vector_type<haploid_geno_t, haploid_vector_type_allocator> &haploids,
-      mutation_cont_type<mutation_type, mutation_cont_type_allocator> &mutations,
-      std::vector<uint_t> &mcounts,
-      const uint_t &N_curr,
-      const uint_t &N_next,
+      structpop_t &pop,
+      //gamete_cont_type<gamete_type, gamete_cont_type_allocator> &gametes,
+      //haploid_vector_type<haploid_geno_t, haploid_vector_type_allocator> &haploids,
+      //mutation_cont_type<mutation_type, mutation_cont_type_allocator> &mutations,
+      //std::vector<uint_t> &mcounts,
+      const uint_t &N1,
+      const uint_t &N2,
+      const double m12,
+      const double m21,
       const double &mu,
       const mutation_model &mmodel,
       const recombination_policy &rec_pol,
       const haploid_fitness_function &ff,
-      typename gamete_type::mutation_container &neutral,
-      typename gamete_type::mutation_container &selected,
+      //typename gamete_type::mutation_container &neutral,
+      //typename gamete_type::mutation_container &selected,
       const double f = 0.,
       const mutation_removal_policy mp = mutation_removal_policy());
 

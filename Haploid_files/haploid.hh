@@ -39,6 +39,7 @@
 #include "sample_haploid_singlepop.cpp"
 #include "sample_haploid_structure.cpp"
 #include "homologous_recpol.hpp"
+#include "migration_functions.cpp"
 
 #endif
 

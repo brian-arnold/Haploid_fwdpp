@@ -61,21 +61,15 @@
  * the goal here it to show the book-keeping of parental fitnesses
  * and the mapping back to deme labels.
  */
-#include <fwdpp/diploid.hh>
 #include <fwdpp/recbinder.hpp>
-#ifdef HAVE_LIBSEQUENCE
-#include <Sequence/SimData.hpp>
-#endif
 #include <numeric>
 #include <functional>
 #include <cassert>
 #include <unordered_set>
-#include <fwdpp/sugar/popgenmut.hpp>
-#define SINGLEPOP_SIM
-// the type of mutation
-using mtype = fwdpp::popgenmut;
-#include <common_ind.hpp>
 #include <gsl/gsl_randist.h>
+
+
+
 using namespace fwdpp;
 
 struct parent_lookup_tables
@@ -84,17 +78,17 @@ struct parent_lookup_tables
     // These return indexes of parents from demes 1 and 2,
     // resp, chosen in O(1) time proportional to
     // relative fitness within each deme
-    fwdpp_internal::gsl_ran_discrete_t_ptr lookup1, lookup2;
+    fwdpp_internal::gsl_ran_discrete_t_ptr seln1, seln2, rand1, rand2;
     // These vectors map indexes returned from sampling
     // lookup1 and lookup2 to diploids in the population
     // object.
     std::vector<std::size_t> parents1, parents2;
 };
 
-template <typename fitness_fxn>
+template <typename structpoptype, typename haploid_fitness_function>
 parent_lookup_tables
-migrate_and_calc_fitness(const gsl_rng *r, singlepop_t &pop,
-                         const fitness_fxn &wfxn, const uint_t N1,
+migrate_and_calc_fitness(const gsl_rng *r, structpoptype &pop,
+                         const haploid_fitness_function &ff, const uint_t N1,
                          const uint_t N2, const double m12, const double m21)
 // This function will be called at the start of each generation.
 // The main goal is to return the lookup tables described above.
@@ -115,10 +109,11 @@ migrate_and_calc_fitness(const gsl_rng *r, singlepop_t &pop,
     unsigned nmig21 = gsl_ran_poisson(r, static_cast<double>(N2) * m21);
 
     // Fill a vector of N1 zeros and N2 ones:
+    // The fist N1 indices represent pop1
     std::vector<uint_t> deme_labels(N1, 0);
     deme_labels.resize(N1 + N2, 1);
-    assert(deme_labels.size() == pop.diploids.size());
-
+    assert(deme_labels.size() == pop.haploids.size());
+    
     // Set up source and destination containers
     // for sampling w/o replacement
     std::vector<std::size_t> individuals(N1 + N2);
@@ -126,22 +121,10 @@ migrate_and_calc_fitness(const gsl_rng *r, singlepop_t &pop,
     std::iota(std::begin(individuals), std::end(individuals), 0);
     std::vector<std::size_t> migrants(std::max(nmig12, nmig21));
 
+    
     // Who is migrating 1 -> 2?
     // gsl function fills migrants array with nmig12 objects from the first
     // N1 elements of individuals array
-    
-    
-    
-    
-    //
-    // DOES MIGRANTS HAVE TO BE AN ARRAY? IN GSL DOCUMENTATION IT SAYS ARRAY
-    // TEST THISFUNCTION OUT TO MAKE SURE IT'S RECYCLING MIGRANTS ARRAY
-    //
-    
-    
-    
-    
-    
     gsl_ran_choose(r, migrants.data(), nmig12, individuals.data(), N1,
                    sizeof(std::size_t));
     for (std::size_t i = 0; i < nmig12; ++i)
@@ -157,7 +140,7 @@ migrate_and_calc_fitness(const gsl_rng *r, singlepop_t &pop,
         {
             deme_labels[migrants[i]] = !deme_labels[migrants[i]];
         }
-
+    
     // Go over all parents, set gametes counts to zero,
     // and put individual IDs and fitnesses into
     // the right vectors:
@@ -168,28 +151,32 @@ migrate_and_calc_fitness(const gsl_rng *r, singlepop_t &pop,
             // over diploids here, now is a good time to
             // handle this task, which saves us from having to
             // do another O(N1+N2) loop:
-            pop.gametes[pop.diploids[i].first].n
-                = pop.gametes[pop.diploids[i].second].n = 0;
+            pop.gametes[pop.haploids[i]].n = 0;
             if (deme_labels[i] == 0)
                 {
                     rv.parents1.push_back(i);
-                    w1.push_back(
-                        wfxn(pop.diploids[i], pop.gametes, pop.mutations));
+                    w1.push_back( ff(pop.gametes[pop.haploids[i]], pop.mutations, deme_labels[i]) );
                 }
             else
                 {
                     rv.parents2.push_back(i);
-                    w2.push_back(
-                        wfxn(pop.diploids[i], pop.gametes, pop.mutations));
+                    w2.push_back( ff(pop.gametes[pop.haploids[i]], pop.mutations, deme_labels[i]) );
                 }
         }
 
+    // For lookup tables that RANDOMLY sample parents, i.e. for recombination
+    std::vector<double> neut1(rv.parents1.size(), 1.0) ;
+    std::vector<double> neut2(rv.parents1.size(), 1.0) ;
     // Set up our lookup tables:
-    rv.lookup1.reset(gsl_ran_discrete_preproc(rv.parents1.size(), w1.data()));
-    rv.lookup2.reset(gsl_ran_discrete_preproc(rv.parents2.size(), w2.data()));
+    rv.seln1.reset(gsl_ran_discrete_preproc(rv.parents1.size(), w1.data()));
+    rv.seln2.reset(gsl_ran_discrete_preproc(rv.parents2.size(), w2.data()));
+    rv.rand1.reset(gsl_ran_discrete_preproc(rv.parents1.size(), neut1.data() ));
+    rv.rand2.reset(gsl_ran_discrete_preproc(rv.parents2.size(), neut2.data() ));
     return rv;
 };
 
+
+/*
 template <typename fitness_fxn, typename rec_fxn, typename mut_fxn>
 void
 evolve_two_demes(const gsl_rng *r, singlepop_t &pop, const uint_t N1,
@@ -213,8 +200,10 @@ evolve_two_demes(const gsl_rng *r, singlepop_t &pop, const uint_t N1,
     const auto parents(pop.diploids);
 
     // Fill in the next generation!
-    // We generate the offspring for deme 1 first,
-    // and then for deme 2
+    // We generate the offspring for deme 1 first, and then for deme 2
+    // because of migration, the number of individuals for N1 increases
+    // in lookup table, but we only sample N1 ind's from it,
+    // conserving pop sizes
     for (uint_t i = 0; i < N1 + N2; ++i)
         {
             std::size_t p1 = std::numeric_limits<std::size_t>::max();
@@ -236,9 +225,8 @@ evolve_two_demes(const gsl_rng *r, singlepop_t &pop, const uint_t N1,
             assert(p1 < parents.size());
             assert(p2 < parents.size());
 
-            /*
-              These are the gametes from each parent.
-            */
+            
+            //These are the gametes from each parent.
             auto p1g1 = parents[p1].first;
             auto p1g2 = parents[p1].second;
             auto p2g1 = parents[p2].first;
@@ -284,7 +272,9 @@ evolve_two_demes(const gsl_rng *r, singlepop_t &pop, const uint_t N1,
     fwdpp_internal::gamete_cleaner(pop.gametes, pop.mutations, pop.mcounts,
                                    2 * (N1 + N2), std::true_type());
 }
+*/
 
+/*
 int
 main(int argc, char **argv)
 {
@@ -349,16 +339,11 @@ main(int argc, char **argv)
             // Call our fancy new evolve function
             evolve_two_demes(r.get(), pop, N1, N2, m12, m21,
                              mu_neutral + mu_del, wfxn, rec, mmodel);
-            /*
-            wbar = fwdpp::sample_diploid(
-                r.get(), pop.gametes, pop.diploids, pop.mutations, pop.mcounts,
-                N, mu_neutral + mu_del, mmodel,
-                // The function to generation recombination positions:
-                rec, wfxn, pop.neutral, pop.selected);
-            */
             fwdpp::update_mutations(pop.mutations, pop.fixations,
                                     pop.fixation_times, pop.mut_lookup,
                                     pop.mcounts, generation, 2 * N);
             assert(fwdpp::check_sum(pop.gametes, 2 * N));
         }
 }
+*/
+

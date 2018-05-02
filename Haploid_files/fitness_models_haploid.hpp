@@ -27,4 +27,26 @@ struct multiplicative_negseln_haploid
     }
 };
 
+struct pop_sign_seln_multiplicative
+{
+    
+    template<typename gamete_type, typename mtype>
+    // function has to be const! in template declaration, functor labelled as const
+    // thus, any attempt to change a member variable or call non-const member function
+    // results in compiler error
+    inline double
+    operator()(const gamete_type &g, const std::vector<mtype> &mutations, const int deme) const noexcept
+    {
+        double product = 1.0 ;
+        for(const std::uint32_t &key : g.smutations){
+            if(deme){
+                product *= (1.0 - mutations[key].s) ;
+            }else{
+                product *= (1.0 + mutations[key].s) ;
+            }
+        }
+        return std::max(0., product);
+    }
+};
+
 #endif

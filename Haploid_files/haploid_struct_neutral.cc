@@ -26,15 +26,18 @@ using mtype = fwdpp::popgenmut;
 int
 main(int argc, char **argv)
 {
-    if (argc != 10)
+    if (argc != 13)
         {
             std::cerr << "Too few arguments\n"
-                      << "Usage: diploid_ind N theta rho fragsize meantrlen ngens samplesize "
-                         "nreps seed\n";
+                      << "Usage: haploid_ind N1 N2 m12 m21 theta rho fragsize meantrlen "
+                         "ngens samplesize nreps seed\n";
             exit(0);
         }
     int argument = 1;
-    const unsigned N = unsigned(atoi(argv[argument++])); // Number of haploids
+    const unsigned N1 = unsigned(atoi(argv[argument++])); // Number of haploids in N1
+    const unsigned N2 = unsigned(atoi(argv[argument++])); // Number of haploids in N2
+    const double m12 = atof(argv[argument++]); // migration deme 1->2
+    const double m21 = atof(argv[argument++]); // migration deme 2->1
     const double theta = atof(argv[argument++]); // 2*n*u PER REGION
     const double rho = atof(argv[argument++]);   // 2*n*r PER REGION
     const double fragsize = (atof(argv[argument++])); // Size of DNA frag, for homologous rec
@@ -44,6 +47,7 @@ main(int argc, char **argv)
     int nreps = atoi(argv[argument++]); // Number of replicates to simulate
     const unsigned seed = unsigned(atoi(argv[argument++])); // Random number seed
     
+    const unsigned N = N1 + N2; // Total metapop size, for convenience
     const double mu = theta / double(2 * N); // per-gamete mutation rate
     const double littler = rho / double(2 * N);// per-gamete reconbination rate
 
@@ -98,7 +102,6 @@ main(int argc, char **argv)
                 pop.haploids.emplace_back(0) ;
             }
 
-
             pop.mutations.reserve(size_t(std::ceil(std::log(2 * N) * theta + 0.667 * theta)));
             unsigned generation = 0;
             double wbar;
@@ -115,13 +118,13 @@ main(int argc, char **argv)
             for (generation = 0; generation < ngens; ++generation)
                 {
                     // Iterate the population through 1 generation
-                    wbar = sample_haploid_structure(
+                    sample_haploid_structure(
                         r.get(),
-                        pop.gametes,   // non-const reference to gametes
-                        pop.haploids,
-                        pop.mutations, // non-const reference to mutations
-                        pop.mcounts,
-                        N,  // current pop size, remains constant
+                        pop,
+                        N1,     // Popsize deme1
+                        N2,     // Popsize deme2
+                        m12,    // mig rate deme1->deme2
+                        m21,    // mig rate deme2->deme1
                         mu, // mutation rate per gamete
                         /*
                           The mutation model will be applied
@@ -136,9 +139,7 @@ main(int argc, char **argv)
                         Fitness function, can only pass pointers to functions
                          or function objects
                         */
-                        multiplicative_negseln_haploid(),
-                        pop.neutral,
-                        pop.selected);
+                        pop_sign_seln_multiplicative());
                         // 2 more args in template defn but they have defaults
                     fwdpp::update_mutations(pop.mutations, pop.fixations,
                                             pop.fixation_times, pop.mut_lookup,

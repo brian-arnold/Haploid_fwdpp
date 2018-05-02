@@ -156,10 +156,10 @@ mutate_recombine_update_haploid(
     // the integers representing the locations of the new mutations
     // in "mutations".
     
-    auto breakpoints
+    std::vector<double> breakpoints
             = generate_breakpoints_haploid(p1, p2, gametes, mutations,
                                            rec_pol);
-    auto new_mutations
+    std::vector<uint_t> new_mutations
         = generate_new_mutations_haploid(mutation_recycling_bin, r, mu,
                                  gametes, mutations, p1, mmodel);
 
@@ -240,12 +240,13 @@ mutate_recombine_update_haploid(
     // the integers representing the locations of the new mutations
     // in "mutations".
     
-    auto breakpoints
-    = generate_breakpoints_haploid(p1, p2, gametes, mutations,
-                                   rec_pol);
-    auto new_mutations
-    = generate_new_mutations_haploid(mutation_recycling_bin, r, mu,
-                                     gametes, mutations, p1, mmodel);
+    
+    std::vector<double> breakpoints
+            = generate_breakpoints_haploid(p1, p2, gametes, mutations,
+                                           rec_pol);
+    std::vector<uint_t> new_mutations
+            = generate_new_mutations_haploid(mutation_recycling_bin, r, mu,
+                                             gametes, mutations, p1, mmodel);
     
     // Pass the breakpoints and new mutation keys on to
     // fwdpp::mutate_recombine (defined in
@@ -257,7 +258,7 @@ mutate_recombine_update_haploid(
     // of a
     // new gamete emplace_back'd onto the end.
     
-    
+
     hap = fwdpp::mutate_recombine(new_mutations, breakpoints, p1, p2,
                                             gametes, mutations, gamete_recycling_bin,
                                             neutral, selected);
