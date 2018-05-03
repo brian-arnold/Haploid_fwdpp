@@ -68,6 +68,12 @@ while(<IN>){
 		$num_sites = $line[4] ;
 		$TrLen = $line[5] ;
 	}
+	if($_ =~ m/^\.\/haploid_ind_seln/ ){ # command used with arguments
+		my @line = split(" ", $_) ;
+		$Sample_size = $line[9] ;
+		$num_reps = $line[10] ;
+		$num_sites = $line[5] ;
+	}
 	if($_ =~ m/^\.\/ms/ ){ # command used with arguments
 		my @line = split(" ", $_) ;
 		$Sample_size = $line[1] ;
@@ -77,7 +83,7 @@ while(<IN>){
 		$num_sites = $line[7] ;
 		$TrLen = $line[10] ;
 	}
-	if($_ =~ m/^\.\/haploid_struct/ ){ # command used with arguments
+	if($_ =~ m/^\.\/haploid_struct_neutral/ ){ # command used with arguments
 		my @line = split(" ", $_) ;
 		$Sample_size = $line[10] ;
 		$num_reps = $line[11] ;
@@ -85,6 +91,15 @@ while(<IN>){
 		$rec_rate = $line[6] ;
 		$num_sites = $line[7] ;
 		$TrLen = $line[8] ;
+	}
+	if($_ =~ m/^\.\/haploid_struct_seln/ ){ # command used with arguments
+		my @line = split(" ", $_) ;
+		$Sample_size = $line[12] ;
+		$num_reps = $line[13] ;
+		$theta = $line[5]+$line[6] ;
+		$rec_rate = $line[7] ;
+		$num_sites = $line[8] ;
+		$TrLen = $line[9] ;
 	}
 	if($_ =~ m/\/\//){ # beginning of replicate
 		$replicate++ ;
@@ -159,6 +174,7 @@ foreach my $seg_site_index ( keys %Segsites_Bi_Unfiltered ){
 foreach my $af (sort {$a <=> $b} keys %AFS){
 	print $af, "\t", $AFS{$af}, "\n" ;
 }
+
 
 exit ;
 

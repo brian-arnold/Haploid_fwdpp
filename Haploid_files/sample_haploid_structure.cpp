@@ -118,10 +118,12 @@ sample_haploid_structure(
     */
 
     // DEBUG
+    /*
     assert(happopdata_sane(pop.haploids, pop.gametes, pop.mutations, pop.mcounts));
     assert(pop.mcounts.size() == pop.mutations.size());
-    assert(check_sum(pop.gametes, (N1 + N2))); // BA: uses Kevin's check_sum func to cycle through gametes, counting n
-
+    assert(check_sum(pop.gametes, (N1 + N2)));
+    */
+     
     /*
       The mutation and gamete containers contain both extinct and extant
       objects.
@@ -149,49 +151,14 @@ sample_haploid_structure(
     // Migration and build pop-specific lookup tables:
     auto lookups = migrate_and_calc_fitness(r, pop, ff, N1, N2, m12, m21);
     
-    /*
-    // vect of fitnesses
-    std::vector<double> fitnesses(haploids.size());
-    double wbar = 0.; // pop'n mean fitness
-    for (uint_t i = 0; i < N_curr; ++i)
-        {
-            //from fitness_models_haploid.cpp, ff returns double
-            fitnesses[i] = ff(gametes[haploids[i]], mutations);
-            gametes[haploids[i]].n = 0;
-            wbar += fitnesses[i];
-        }
-    // divide by popsize, which may != ngametes since gametes may have n>1
-    wbar /= double(N_curr);
-     */
-     
     // DEBUG
+    /*
     for (const auto &g : pop.gametes)
         assert(!g.n);
+     */
 
     const auto parents(pop.haploids); // Copy the parents
-        
-    /*
-    for (auto &hap : haploids)
-        {
-            // Choose parent 1 based on fitness
-            auto p1 = gsl_ran_discrete(r, lookup_sel.get());
-            // Donor for recombination
-            // RANDOMLY sample for recombinant
-            auto p2 = gsl_rng_uniform_int(r, N_curr) ;
-            
-            assert(p1 < parents.size());
-            assert(p2 < parents.size());
 
-            auto h1 = parents[p1] ; // need to cp from parents,
-            auto h2 = parents[p2] ; // haploids being modified
-
-            mutate_recombine_update_haploid(
-                r, gametes, mutations,
-                std::make_tuple(h1, h2), rec_pol, mmodel,
-                mu, gam_recycling_bin, mut_recycling_bin, hap,
-                neutral, selected);
-    }
-     */
     // Fill in the next generation!
     // We generate the offspring for deme 1 first, and then for deme 2.
     // because of migration, the number of individuals for N1(N2) increases
@@ -217,8 +184,6 @@ sample_haploid_structure(
         assert(p1 < parents.size());
         assert(p2 < parents.size());
         
-        //std::cout << "parents:\t" << p1 << "\t" << p2 <<"\n" ;
-        
         auto h1 = parents[p1] ; // need to cp from parents,
         auto h2 = parents[p2] ; // haploids being modified
         
@@ -233,12 +198,14 @@ sample_haploid_structure(
     }
     
     // DEBUG
+    /*
     assert(check_sum(pop.gametes, (N1 + N2)));
     for (const auto &hap : pop.haploids)
         {
             assert(pop.gametes[hap].n > 0);
             assert(pop.gametes[hap].n <= (N1 + N2));
         }
+     */
      
     /*
       At the end of the above loop, we have a bunch of new diploids
@@ -260,12 +227,13 @@ sample_haploid_structure(
     assert(pop.mcounts.size() == pop.mutations.size());
 
     // DEBUG
+    /*
     for (const auto &mc : pop.mcounts)
         {
             assert(mc <= (N1 + N2));
         }
     assert(happopdata_sane(pop.haploids, pop.gametes, pop.mutations, pop.mcounts));
-
+     */
     
     /*
       The last thing to do is handle fixations.  In many contexts, we

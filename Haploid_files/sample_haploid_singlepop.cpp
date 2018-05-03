@@ -99,6 +99,7 @@ sample_haploid(
     */
 
     // DEBUG
+    /*
     for (const auto &g : gametes)
     {
        if(g.n){
@@ -108,7 +109,8 @@ sample_haploid(
     assert(mcounts.size() == mutations.size());
     assert(check_sum(gametes, N_curr)); // BA: uses Kevin's check_sum func to cycle through gametes, counting n
     assert(mcounts.size() == mutations.size());
-
+     */
+     
     /*
       The mutation and gamete containers contain both extinct and extant
       objects.
@@ -144,7 +146,7 @@ sample_haploid(
     for (std::size_t i = 0; i < ngametes; ++i)
         {
           //from fitness_models_haploid.cpp, ff returns double
-            fitnesses[i] = ff(gametes[i], mutations);
+            fitnesses[i] = ff(gametes[i], mutations, mcounts);
             // (gamete fitness)*(pop freq) = total sampling probability
             fitnesses[i] = fitnesses[i]*static_cast<double>(gametes[i].n) ;
             samp_neutral[i] = static_cast<double>(gametes[i].n) ;
@@ -155,9 +157,11 @@ sample_haploid(
     wbar /= double(N_curr);
 
     // DEBUG
+    /*
     for (const auto &g : gametes)
         assert(!g.n);
-
+     */
+     
     /*
       This is a lookup table for rapid sampling of diploids proportional to
       their fitnesses.
@@ -189,17 +193,12 @@ sample_haploid(
                 selected);
 
     }
-    assert(check_sum(gametes, N_next));
-    /*
-     for (const auto &dip : diploids)
-        {
-            assert(gametes[dip.first].n > 0);
-            assert(gametes[dip.first].n <= 2 * N_next);
-            assert(gametes[dip.second].n > 0);
-            assert(gametes[dip.second].n <= 2 * N_next);
-        }
-     */
     
+    //DEBUG
+    /*
+    assert(check_sum(gametes, N_next));
+    */
+     
     /*
       At the end of the above loop, we have a bunch of new diploids
       that are all recombined and mutated sampling of the parental
@@ -233,6 +232,7 @@ sample_haploid(
     assert(mcounts.size() == mutations.size());
 
     // DEBUG
+    /*
     for (const auto &mc : mcounts)
         {
             assert(mc <= 2 * N_next);
@@ -244,7 +244,7 @@ sample_haploid(
             assert(gamete_data_sane(g, mutations, mcounts)) ;
         }
     }
-
+     */
     
     /*
       The last thing to do is handle fixations.  In many contexts, we

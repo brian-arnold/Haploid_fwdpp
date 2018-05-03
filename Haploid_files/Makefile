@@ -3,7 +3,7 @@
 SHELL=/usr/bin/env bash -eo pipefail
 
 F=../fwdpp
-P=haploid_struct_neutral
+P=haploid_ind_seln
 
 .SECONDARY:
 
@@ -12,7 +12,7 @@ P=haploid_struct_neutral
 all: ../$(P) #$(F)/Makefile
 
 ../$(P): $(P).cc $(F)/Makefile
-	g++ -I$(F) -I/usr/local/include/ -std=c++11 -lsequence -lgsl -lgslcblas -o $@ $<
+	g++ -g -I$(F) -I/usr/local/include/ -std=c++11 -lsequence -lgsl -lgslcblas -o $@ $<
 
 
 $(F)/Makefile:

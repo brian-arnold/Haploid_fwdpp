@@ -107,7 +107,13 @@ migrate_and_calc_fitness(const gsl_rng *r, structpoptype &pop,
     // Pick no. migrants 1 -> 2 and 2 -> 1.
     unsigned nmig12 = gsl_ran_poisson(r, static_cast<double>(N1) * m12);
     unsigned nmig21 = gsl_ran_poisson(r, static_cast<double>(N2) * m21);
-
+    // make sure migrants not >= pop size, NO EXTINCTIONS!
+    while(nmig12 >= N1){
+        nmig12 = gsl_ran_poisson(r, static_cast<double>(N1) * m12) ;
+    }
+    while(nmig21 >= N2){
+        nmig21 = gsl_ran_poisson(r, static_cast<double>(N2) * m21) ;
+    }
     // Fill a vector of N1 zeros and N2 ones:
     // The fist N1 indices represent pop1
     std::vector<uint_t> deme_labels(N1, 0);
@@ -166,7 +172,7 @@ migrate_and_calc_fitness(const gsl_rng *r, structpoptype &pop,
 
     // For lookup tables that RANDOMLY sample parents, i.e. for recombination
     std::vector<double> neut1(rv.parents1.size(), 1.0) ;
-    std::vector<double> neut2(rv.parents1.size(), 1.0) ;
+    std::vector<double> neut2(rv.parents2.size(), 1.0) ;
     // Set up our lookup tables:
     rv.seln1.reset(gsl_ran_discrete_preproc(rv.parents1.size(), w1.data()));
     rv.seln2.reset(gsl_ran_discrete_preproc(rv.parents2.size(), w2.data()));
@@ -174,176 +180,4 @@ migrate_and_calc_fitness(const gsl_rng *r, structpoptype &pop,
     rv.rand2.reset(gsl_ran_discrete_preproc(rv.parents2.size(), neut2.data() ));
     return rv;
 };
-
-
-/*
-template <typename fitness_fxn, typename rec_fxn, typename mut_fxn>
-void
-evolve_two_demes(const gsl_rng *r, singlepop_t &pop, const uint_t N1,
-                 const uint_t N2, const double m12, const double m21,
-                 const double mu, const fitness_fxn &wfxn,
-                 const rec_fxn &recfxn, const mut_fxn &mutfxn)
-{
-    // Handle mutation/gamete "recycling":
-    auto mut_recycling_bin = fwdpp_internal::make_mut_queue(pop.mcounts);
-    auto gam_recycling_bin = fwdpp_internal::make_gamete_queue(pop.gametes);
-
-    // Migration and build lookup tables:
-    auto lookups = migrate_and_calc_fitness(r, pop, wfxn, N1, N2, m12, m21);
-
-#ifndef NDEBUG
-    for (const auto &g : pop.gametes)
-        assert(!g.n);
-#endif
-
-    // Copy parents
-    const auto parents(pop.diploids);
-
-    // Fill in the next generation!
-    // We generate the offspring for deme 1 first, and then for deme 2
-    // because of migration, the number of individuals for N1 increases
-    // in lookup table, but we only sample N1 ind's from it,
-    // conserving pop sizes
-    for (uint_t i = 0; i < N1 + N2; ++i)
-        {
-            std::size_t p1 = std::numeric_limits<std::size_t>::max();
-            std::size_t p2 = std::numeric_limits<std::size_t>::max();
-            if (i < N1) // pick parents from pop 1
-                {
-                    p1 = lookups.parents1[gsl_ran_discrete(
-                        r, lookups.lookup1.get())];
-                    p2 = lookups.parents1[gsl_ran_discrete(
-                        r, lookups.lookup1.get())];
-                }
-            else // pick parents from pop 2
-                {
-                    p1 = lookups.parents2[gsl_ran_discrete(
-                        r, lookups.lookup2.get())];
-                    p2 = lookups.parents2[gsl_ran_discrete(
-                        r, lookups.lookup2.get())];
-                }
-            assert(p1 < parents.size());
-            assert(p2 < parents.size());
-
-            
-            //These are the gametes from each parent.
-            auto p1g1 = parents[p1].first;
-            auto p1g2 = parents[p1].second;
-            auto p2g1 = parents[p2].first;
-            auto p2g2 = parents[p2].second;
-
-            // "Mendel"
-            if (gsl_rng_uniform(r) < 0.5)
-                std::swap(p1g1, p1g2);
-            if (gsl_rng_uniform(r) < 0.5)
-                std::swap(p2g1, p2g2);
-
-            mutate_recombine_update(r, pop.gametes, pop.mutations,
-                                    std::make_tuple(p1g1, p1g2, p2g1, p2g2),
-                                    recfxn, mutfxn, mu, gam_recycling_bin,
-                                    mut_recycling_bin, pop.diploids[i],
-                                    pop.neutral, pop.selected);
-        }
-    assert(check_sum(pop.gametes, 2 * (N1 + N2)));
-#ifndef NDEBUG
-    for (const auto &dip : pop.diploids)
-        {
-            assert(pop.gametes[dip.first].n > 0);
-            assert(pop.gametes[dip.first].n <= 2 * (N1 + N2));
-            assert(pop.gametes[dip.second].n > 0);
-            assert(pop.gametes[dip.second].n <= 2 * (N1 + N2));
-        }
-#endif
-
-    // Update mutation counts
-    fwdpp_internal::process_gametes(pop.gametes, pop.mutations, pop.mcounts);
-
-    assert(pop.mcounts.size() == pop.mutations.size());
-#ifndef NDEBUG
-    for (const auto &mc : pop.mcounts)
-        {
-            assert(mc <= 2 * (N1 + N2));
-        }
-#endif
-    assert(
-        popdata_sane(pop.diploids, pop.gametes, pop.mutations, pop.mcounts));
-
-    // Prune fixations from gametes
-    fwdpp_internal::gamete_cleaner(pop.gametes, pop.mutations, pop.mcounts,
-                                   2 * (N1 + N2), std::true_type());
-}
-*/
-
-/*
-int
-main(int argc, char **argv)
-{
-    if (argc != 12)
-        {
-            std::cerr
-                << "Too few arguments.\n"
-                << "Usage: juvenile_migration N1 N1 m12 m21 theta_neutral "
-                   "theta_deleterious rho s h ngens "
-                   "seed\n";
-            exit(0);
-        }
-    int argument = 1;
-    const unsigned N1 = atoi(argv[argument++]);
-    const unsigned N2 = atoi(argv[argument++]);
-    const double m12 = atof(argv[argument++]);
-    const double m21 = atof(argv[argument++]);
-    const double theta_neutral = atof(argv[argument++]);
-    const double theta_del = atof(argv[argument++]);
-    const double rho = atof(argv[argument++]);
-    const double s = atof(argv[argument++]);
-    const double h = atof(argv[argument++]);
-    const unsigned ngens = atoi(argv[argument++]);
-    const unsigned seed = atoi(argv[argument++]);
-
-    const unsigned N = N1 + N2; // Total metapop size, for convenience
-    const double mu_neutral = theta_neutral / double(4 * N);
-    const double mu_del = theta_del / double(4 * N);
-    const double littler = rho / double(4 * N);
-
-    std::copy(argv, argv + argc,
-              std::ostream_iterator<char *>(std::cerr, " "));
-    std::cerr << '\n';
-
-    GSLrng r(seed);
-
-    // recombination map is uniform[0,1)
-    const auto rec
-        = fwdpp::recbinder(fwdpp::poisson_xover(littler, 0., 1.), r.get());
-
-    const double pselected = mu_del / (mu_del + mu_neutral);
-
-    auto wfxn = fwdpp::multiplicative_diploid(1.);
-    singlepop_t pop(N);
-    pop.mutations.reserve(
-        size_t(std::ceil(std::log(2 * N) * (theta_neutral + theta_del)
-                         + 0.667 * (theta_neutral + theta_del))));
-    unsigned generation = 0;
-    const auto mmodel = [&pop, &r, &generation, s, h, pselected](
-        std::queue<std::size_t> &recbin, singlepop_t::mcont_t &mutations) {
-        return fwdpp::infsites_popgenmut(
-            recbin, mutations, r.get(), pop.mut_lookup, generation, pselected,
-            [&r]() { return gsl_rng_uniform(r.get()); }, [s]() { return s; },
-            [h]() { return h; });
-    };
-
-    double wbar = 1;
-    for (generation = 0; generation < ngens; ++generation)
-        {
-            assert(fwdpp::check_sum(pop.gametes, 2 * (N1 + N2)));
-
-            // Call our fancy new evolve function
-            evolve_two_demes(r.get(), pop, N1, N2, m12, m21,
-                             mu_neutral + mu_del, wfxn, rec, mmodel);
-            fwdpp::update_mutations(pop.mutations, pop.fixations,
-                                    pop.fixation_times, pop.mut_lookup,
-                                    pop.mcounts, generation, 2 * N);
-            assert(fwdpp::check_sum(pop.gametes, 2 * N));
-        }
-}
-*/
 
