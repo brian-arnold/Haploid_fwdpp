@@ -218,7 +218,7 @@ main(int argc, char **argv)
             selpos << "SELECTED POSITIONS (pos:freq)\n" ;
             for(int i=0; i<pop.mutations.size(); i++ ){
                 if(pop.mutations[i].s){
-                    selpos << pop.mutations[i].pos << ":" << pop.mcounts[i] << "\n" ;
+                    selpos << pop.mutations[i].pos << ":" << pop.mutations[i].g << ":" << pop.mcounts[i] <<  "\n" ;
                 }
             }
 

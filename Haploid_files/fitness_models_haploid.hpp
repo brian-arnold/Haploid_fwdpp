@@ -52,7 +52,8 @@ class nfds
     {
         double product = 1.0 ;
         for(const std::uint32_t &key : g.smutations){
-            product *= pow( (1.0 + mutations[key].s), (eq - static_cast<double>(mcounts[key])/N)/eq ) ;
+            product *= (1.0 + mutations[key].s*((eq - static_cast<double>(mcounts[key])/N)/eq)) ;
+            //product *= pow( (1.0 + mutations[key].s), (eq - static_cast<double>(mcounts[key])/N)/eq ) ;
         }
         return std::max(0., product);
     }
