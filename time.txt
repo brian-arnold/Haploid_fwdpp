@@ -1,1 +1,1 @@
-hours:min:sec 0:12:3
+hours:min:sec 0:0:35
