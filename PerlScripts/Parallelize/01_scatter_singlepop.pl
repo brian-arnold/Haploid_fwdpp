@@ -22,14 +22,14 @@ my $samplesize = 100 ;
 my $replicates = 1 ;
 
 # JOB SUBMISSION PARAMETERS
-my $queue = "general" ;
-my $time = 1000 ;
+my $queue = "test" ;
+my $time = 400 ;
 my $mem = 1000 ;
 my $n_cores = 1 ;
 
 foreach my $rep ( 1..$reps ){
 	system("mkdir rep${rep}") ;
-	system("cp ${simulator_dir}/${simulator} rep${rep}") ;
+	#system("cp ${simulator_dir}/${simulator} rep${rep}") ;
 
 	my $script = "#!/bin/bash"."\n" ;
 	$script = $script."#SBATCH -J fwdpp${rep}"."\n" ;
@@ -45,11 +45,10 @@ foreach my $rep ( 1..$reps ){
 	# load modules
 	$script = $script."source new-modules.sh\n" ;
 	$script = $script."module load gcc/7.1.0-fasrc01\n" ;
-	#$script = $script."module load tbb/4.4-fasrc02\n" ;
 	# specify path to linked library libsequence
 	$script = $script."export LD_LIBRARY_PATH=/n/home11/bjarnold/lib:\$LD_LIBRARY_PATH\n" ;
 	# execute script
-	$script = $script."\.\/${simulator} " ;
+	$script = $script."${simulator_dir}/${simulator} " ;
 	$script = $script."${N} " ;
 	$script = $script."${theta_neut} " ;
 	$script = $script."${theta_seln} " ;
