@@ -163,11 +163,16 @@ main(int argc, char **argv)
                 }
             // group haploids into diploids, in order to use diploid printing function
             std::vector< std::pair<std::size_t, std::size_t>> pseudodips ;
-                pseudodips = group_haps_into_dips(r.get(), pop.gametes) ;
+            // collect sample from entire metapopulation
+            pseudodips = group_haps_into_dips(r.get(), pop.gametes) ;
+            // collect sample from N1
+            //pseudodips = group_N1haps_into_dips(r.get(), pop.gametes, pop.haploids, N1) ;
+
+            
             
             std::vector<std::pair<double, std::string>> mslike
-            = fwdpp::ms_sample(r.get(), pop.mutations, pop.gametes,
-                               pseudodips, samplesize1, true);
+                    = fwdpp::ms_sample(r.get(), pop.mutations, pop.gametes,
+                                       pseudodips, samplesize1, true);
             
 // Write the sample date a to libsequence's Sequence::SimData and
 // print to screen

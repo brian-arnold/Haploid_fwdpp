@@ -29,6 +29,19 @@ group_haps_into_dips(const gsl_rng *r,
                      gamete_cont_type<gamete_type, gamete_cont_type_allocator> &gametes) ;
 
 
+template <typename gamete_type,
+            typename gamete_cont_type_allocator,
+            template <typename, typename> class gamete_cont_type,
+            typename haploid_geno_type,
+            typename haploid_vector_type_allocator,
+            template <typename, typename> class haploid_vector_type>
+
+std::vector< std::pair<std::size_t, std::size_t> >
+group_N1haps_into_dips(const gsl_rng *r,
+                       gamete_cont_type<gamete_type, gamete_cont_type_allocator> &gametes,
+                       haploid_vector_type<haploid_geno_type, haploid_vector_type_allocator> &haploids,
+                       const unsigned &N1) ;
+
 #endif
 
 
