@@ -1,0 +1,15 @@
+#!/bin/bash
+#SBATCH -J perl
+#SBATCH -o out
+#SBATCH -e err
+#SBATCH -p general
+#SBATCH -n 1
+#SBATCH -t 400
+#SBATCH --mem=3000
+
+
+
+perl /n/regal/hanage_lab/ForBrian/Haploid_fwdpp/PerlScripts/Summarize_ms_results_LDslices.pl ms_output.txt 1
+
+
+

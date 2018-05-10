@@ -63,11 +63,8 @@ class nfds
 
 struct pop_sign_seln_multiplicative
 {
-    
+    // demes have opposite selection pressures, positive in deme0, negative in deme1
     template<typename gamete_type, typename mtype>
-    // function has to be const! in template declaration, functor labelled as const
-    // thus, any attempt to change a member variable or call non-const member function
-    // results in compiler error
     inline double
     operator()(const gamete_type &g, const std::vector<mtype> &mutations, const int deme) const noexcept
     {
@@ -75,6 +72,26 @@ struct pop_sign_seln_multiplicative
         for(const std::uint32_t &key : g.smutations){
             if(deme){   // neg seln in N2
                 product *= (1.0 - mutations[key].s) ;
+            }else{      // pos seln in N1
+                product *= (1.0 + mutations[key].s) ;
+            }
+        }
+        return std::max(0., product);
+    }
+};
+
+
+struct pop_specific_seln_multiplicative
+{
+    // deme0 under pos selection, deme1 neutral
+    template<typename gamete_type, typename mtype>
+    inline double
+    operator()(const gamete_type &g, const std::vector<mtype> &mutations, const int deme) const noexcept
+    {
+        double product = 1.0 ;
+        for(const std::uint32_t &key : g.smutations){
+            if(deme){   // neutral in N2
+                // neutral, do nothing
             }else{      // pos seln in N1
                 product *= (1.0 + mutations[key].s) ;
             }

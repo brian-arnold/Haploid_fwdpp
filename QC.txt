@@ -1,5 +1,0 @@
-######## number of individuals with seqs
-100
-num segsites 3183
-
-num segsites unfiltered 3165

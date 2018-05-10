@@ -62,7 +62,7 @@ open IN, "<./${results_file}" ;
 my $num_segsites_raw = 0 ;
 while(<IN>){
 	chomp $_ ;
-	if($_ =~ m/^\.\/haploid/ ){ # command used with arguments
+	if($_ =~ m/haploid/ ){ # command used with arguments
 		my @line = split(" ", $_) ;
 		$pop_size = $line[1] ;
 		$Sample_size = $line[7] ;
@@ -72,13 +72,13 @@ while(<IN>){
 		$num_sites = $line[4] ;
 		$TrLen = $line[5] ;
 	}
-	if($_ =~ m/^\.\/haploid_ind_seln/ ){ # command used with arguments
+	if($_ =~ m/haploid_ind_seln/ ){ # command used with arguments
 		my @line = split(" ", $_) ;
 		$Sample_size = $line[9] ;
 		$num_reps = $line[10] ;
 		$num_sites = $line[5] ;
 	}
-	if($_ =~ m/^\.\/ms/ ){ # command used with arguments
+	if($_ =~ m/ms/ ){ # command used with arguments
 		my @line = split(" ", $_) ;
 		$Sample_size = $line[1] ;
 		$num_reps = $line[2] ;
@@ -87,7 +87,7 @@ while(<IN>){
 		$num_sites = $line[7] ;
 		$TrLen = $line[10] ;
 	}
-	if($_ =~ m/^\.\/haploid_struct_neutral/ ){ # command used with arguments
+	if($_ =~ m/haploid_struct_neutral/ ){ # command used with arguments
 		my @line = split(" ", $_) ;
 		$Sample_size = $line[10] ;
 		$num_reps = $line[11] ;
@@ -96,7 +96,7 @@ while(<IN>){
 		$num_sites = $line[7] ;
 		$TrLen = $line[8] ;
 	}
-	if($_ =~ m/^\.\/haploid_struct_seln/ ){ # command used with arguments
+	if($_ =~ m/haploid_struct_seln/ ){ # command used with arguments
 		my @line = split(" ", $_) ;
 		$Sample_size = $line[12] ;
 		$num_reps = $line[13] ;
@@ -260,11 +260,11 @@ foreach my $gene( sort {$a <=> $b} keys %Functional_Effect_BiAllelic ){
 }
 
 my $counter = 0 ;
-my $numGenesPerQuantile = (scalar keys %SYN_SNP_densities)/$quantiles ;
-foreach my $gene ( sort{ $SYN_SNP_densities{$a} <=> $SYN_SNP_densities{$b} } keys %SYN_SNP_densities){
+my $numGenesPerQuantile = (scalar keys %NONSYN_SNP_densities)/$quantiles ;
+foreach my $gene ( sort{ $NONSYN_SNP_densities{$a} <=> $NONSYN_SNP_densities{$b} } keys %NONSYN_SNP_densities){
 	my $quant = int($counter/$numGenesPerQuantile) ;
 	$Genes_Quantiled{$gene} = $quant ;
-	$Quant_means{$quant} += $SYN_SNP_densities{$gene}/$numGenesPerQuantile ;
+	$Quant_means{$quant} += $NONSYN_SNP_densities{$gene}/$numGenesPerQuantile ;
 	$counter++ ;
 }
 
@@ -276,11 +276,11 @@ foreach my $gene (sort {$a <=> $b} keys %Functional_Effect_BiAllelic){
 	#	print $genostring_site, "\t", $Functional_Effect_BiAllelic{$gene}{$genostring_site}, "\n" ;
 	#}
 }
-
-foreach my $quant (keys %Quant_means){
-	print $quant, "\t", $Quant_means{$quant}, "\n" ;
-}
 =cut
+print QC "Quantile\tMean\n" ;
+foreach my $quant (keys %Quant_means){
+	print QC $quant, "\t", $Quant_means{$quant}, "\n" ;
+}
 
 #############################################
 ##	QUANTILE GENES BY SNP DENSITY
@@ -478,8 +478,8 @@ foreach my $bootrep ( 1 .. $Bootreps ){
 	}
 }
 	
-	
-open OUT2, ">./WithinGeneD_Bootreps.txt" ;	
+system("mkdir rep${rep}_summaries") ;
+open OUT2, ">./rep${rep}_summaries/WithinGeneD_Bootreps.txt" ;	
 print OUT2 "Quant", "\t", "Bootrep", "\t", "MeanSynD", "\t", "MeanNonsynD", "\n" ;
 foreach my $quant ( sort{$a <=> $b} keys %WithinGeneD ){
 	foreach my $bootrep ( sort{$a <=> $b} keys %{$WithinGeneD{$quant}} ){
@@ -497,7 +497,7 @@ foreach my $quant ( sort{$a <=> $b} keys %WithinGeneD ){
 	}
 }
 close OUT2 ;
-open OUT2, ">./BetweenGeneD_Bootreps.txt" ;	
+open OUT2, ">./rep${rep}_summaries/BetweenGeneD_Bootreps.txt" ;	
 print OUT2 "Quant", "\t", "Bootrep", "\t", "MeanSynD", "\t", "MeanNonsynD", "\n" ;
 foreach my $quant ( sort{$a <=> $b} keys %BetweenGeneD ){
 	foreach my $bootrep ( sort{$a <=> $b} keys %{$BetweenGeneD{$quant}} ){
