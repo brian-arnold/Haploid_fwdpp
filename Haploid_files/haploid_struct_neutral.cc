@@ -118,7 +118,7 @@ main(int argc, char **argv)
             for (generation = 0; generation < ngens; ++generation)
                 {
                     // Iterate the population through 1 generation
-                    sample_haploid_structure(
+                    sample_haploid_struct_indmig(
                         r.get(),
                         pop,
                         N1,     // Popsize deme1

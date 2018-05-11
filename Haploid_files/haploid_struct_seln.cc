@@ -133,7 +133,7 @@ main(int argc, char **argv)
             for (generation = 0; generation < ngens; ++generation)
                 {
                     // Iterate the population through 1 generation
-                    sample_haploid_structure(
+                    sample_haploid_struct_indmig(
                         r.get(),
                         pop,
                         N1,     // Popsize deme1
@@ -154,7 +154,7 @@ main(int argc, char **argv)
                         Fitness function, can only pass pointers to functions
                          or function objects
                         */
-                        pop_sign_seln_multiplicative());
+                        pop_specific_seln_multiplicative());
                         // 2 more args in template defn but they have defaults
                     fwdpp::update_mutations(pop.mutations, pop.fixations,
                                             pop.fixation_times, pop.mut_lookup,
