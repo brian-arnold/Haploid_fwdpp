@@ -100,4 +100,19 @@ struct pop_specific_seln_multiplicative
     }
 };
 
+struct pop_pos_seln_multiplicative
+{
+    // demes have opposite selection pressures, positive in deme0, negative in deme1
+    template<typename gamete_type, typename mtype>
+    inline double
+    operator()(const gamete_type &g, const std::vector<mtype> &mutations, const int deme) const noexcept
+    {
+        double product = 1.0 ;
+        for(const std::uint32_t &key : g.smutations){
+            product *= (1.0 + mutations[key].s) ;
+        }
+        return std::max(0., product);
+    }
+};
+
 #endif

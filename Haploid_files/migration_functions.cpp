@@ -85,6 +85,10 @@ struct parent_lookup_tables
     std::vector<std::size_t> parents1, parents2;
 };
 
+
+//
+// Overloaded function for use with sample_haploid_struct_indmig
+//
 template <typename structpoptype, typename haploid_fitness_function>
 parent_lookup_tables
 migrate_and_calc_fitness(const gsl_rng *r, structpoptype &pop,
@@ -180,4 +184,64 @@ migrate_and_calc_fitness(const gsl_rng *r, structpoptype &pop,
     rv.rand2.reset(gsl_ran_discrete_preproc(rv.parents2.size(), neut2.data() ));
     return rv;
 };
+
+
+//
+// Overloaded function for use with sample_haploid_struct_recmig
+//
+template <typename structpoptype, typename haploid_fitness_function>
+parent_lookup_tables
+calc_fitness_twopop(const gsl_rng *r, structpoptype &pop,
+                         const haploid_fitness_function &ff, const uint_t N1,
+                         const uint_t N2)
+// This function will be called at the start of each generation.
+// The main goal is to return the lookup tables described above.
+// But, "while we're at it", it does some other stuff that
+// needs to be done at the start of each generation.
+// Neither the most rigorous nor the most efficient:
+// 1. Ignores probability of back-migration.
+// 2. Allocates 4 vectors each generation.
+{
+    parent_lookup_tables rv;
+    
+    // Temp containers for fitnesses in each deme,
+    // post-migration
+    std::vector<double> w1, w2;
+    
+    // Go over all parents, set gametes counts to zero,
+    // and put individual IDs and fitnesses into
+    // the right vectors:
+    for (std::size_t i = 0; i < N1+N2; ++i)
+    {
+        // fwdpp requires that we zero out gamete
+        // counts each generation.  Since we're looping
+        // over diploids here, now is a good time to
+        // handle this task, which saves us from having to
+        // do another O(N1+N2) loop:
+        pop.gametes[pop.haploids[i]].n = 0;
+        if (i < N1)
+        {
+            rv.parents1.push_back(i);
+            // deme N1 indexed as 0
+            w1.push_back( ff(pop.gametes[pop.haploids[i]], pop.mutations, 0) );
+        }
+        else
+        {
+            rv.parents2.push_back(i);
+            // deme N2 indexed as 1
+            w2.push_back( ff(pop.gametes[pop.haploids[i]], pop.mutations, 1) );
+        }
+    }
+    
+    // For lookup tables that RANDOMLY sample parents, i.e. for recombination
+    std::vector<double> neut1(rv.parents1.size(), 1.0) ;
+    std::vector<double> neut2(rv.parents2.size(), 1.0) ;
+    // Set up our lookup tables:
+    rv.seln1.reset(gsl_ran_discrete_preproc(rv.parents1.size(), w1.data()));
+    rv.seln2.reset(gsl_ran_discrete_preproc(rv.parents2.size(), w2.data()));
+    rv.rand1.reset(gsl_ran_discrete_preproc(rv.parents1.size(), neut1.data() ));
+    rv.rand2.reset(gsl_ran_discrete_preproc(rv.parents2.size(), neut2.data() ));
+    return rv;
+};
+
 

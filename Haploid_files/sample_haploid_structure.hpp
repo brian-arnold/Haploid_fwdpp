@@ -74,6 +74,40 @@ void sample_haploid_struct_indmig(
       const mutation_removal_policy mp = mutation_removal_policy());
 
 
+//
+// For structured deme, migration only from interpopulation recombination
+//
+template <typename gamete_type, typename gamete_cont_type_allocator,
+typename mutation_type, typename mutation_cont_type_allocator,
+typename haploid_geno_t, typename haploid_vector_type_allocator,
+typename haploid_fitness_function, typename mutation_model,
+typename recombination_policy,
+template <typename, typename> class gamete_cont_type,
+template <typename, typename> class mutation_cont_type,
+template <typename, typename> class haploid_vector_type,
+typename mutation_removal_policy = std::true_type>
+void sample_haploid_struct_recmig(
+                                  // 12 args
+                                  const gsl_rng *r,
+                                  structpop_t &pop,
+                                  //gamete_cont_type<gamete_type, gamete_cont_type_allocator> &gametes,
+                                  //haploid_vector_type<haploid_geno_t, haploid_vector_type_allocator> &haploids,
+                                  //mutation_cont_type<mutation_type, mutation_cont_type_allocator> &mutations,
+                                  //std::vector<uint_t> &mcounts,
+                                  const uint_t &N1,
+                                  const uint_t &N2,
+                                  const double m12,
+                                  const double m21,
+                                  const double &mu,
+                                  const mutation_model &mmodel,
+                                  const recombination_policy &rec_pol,
+                                  const haploid_fitness_function &ff,
+                                  //typename gamete_type::mutation_container &neutral,
+                                  //typename gamete_type::mutation_container &selected,
+                                  const double f = 0.,
+                                  const mutation_removal_policy mp = mutation_removal_policy());
+
+
 // this needs to be included after, o.w. compiler doesnt like adding defaults to
 //func tmeplate already declared
 //#include "sample_haploid_structure.cpp"
