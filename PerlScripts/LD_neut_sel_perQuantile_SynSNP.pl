@@ -265,11 +265,11 @@ foreach my $gene( sort {$a <=> $b} keys %Functional_Effect_BiAllelic ){
 }
 
 my $counter = 0 ;
-my $numGenesPerQuantile = (scalar keys %NONSYN_SNP_densities)/$quantiles ;
-foreach my $gene ( sort{ $NONSYN_SNP_densities{$a} <=> $NONSYN_SNP_densities{$b} } keys %NONSYN_SNP_densities){
+my $numGenesPerQuantile = (scalar keys %SYN_SNP_densities)/$quantiles ;
+foreach my $gene ( sort{ $SYN_SNP_densities{$a} <=> $SYN_SNP_densities{$b} } keys %SYN_SNP_densities){
 	my $quant = int($counter/$numGenesPerQuantile) ;
 	$Genes_Quantiled{$gene} = $quant ;
-	$Quant_means{$quant} += $NONSYN_SNP_densities{$gene}/$numGenesPerQuantile ;
+	$Quant_means{$quant} += $SYN_SNP_densities{$gene}/$numGenesPerQuantile ;
 	$counter++ ;
 }
 
@@ -544,7 +544,7 @@ foreach my $quant (sort{$a <=> $b} keys %PairWise_D_SYN_BetweenGene){
 	print OUT1 $sum_D/(scalar @{$PairWise_D_SYN_BetweenGene{$quant}}), "\t", $sum_Dpr/(scalar @{$PairWise_Dprime_SYN_BetweenGene{$quant}}), "\n" ;
 }
 close OUT1 ;
-print QC "AVG LD SYN BETWEEN GENE:\n" ;
+print QC "AVG LD SYN BETWEEN GENE: " ;
 if($total_D_SYN_tally){
 	print QC $total_D_SYN/$total_D_SYN_tally, "\n"
 }else{
@@ -574,7 +574,7 @@ foreach my $quant (sort{$a <=> $b} keys %PairWise_D_NONSYN_BetweenGene){
 }
 close OUT1 ;
 
-print QC "AVG LD NONSYN BETWEEN GENE:\n" ;
+print QC "AVG LD NONSYN BETWEEN GENE: " ;
 if($total_D_NONSYN_tally){
 	print QC $total_D_NONSYN/$total_D_NONSYN_tally, "\n"
 }else{

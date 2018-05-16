@@ -30,6 +30,38 @@ struct multiplicative_negseln_haploid
 };
 
 
+class quadratic_synepistasis_negseln
+{
+private:
+    double b ; // pairwise epistasis coefficient
+    double s ; // selection coefficient
+public:
+    // Constructor
+    explicit quadratic_synepistasis_negseln(const double sel, const double beta) :
+            s(sel), b(beta)
+    {
+    }
+    
+    template<typename gamete_type, typename mtype>
+    // function has to be const! in template declaration, functor labelled as const
+    // thus, any attempt to change a member variable or call non-const member function
+    // results in compiler error
+    inline double
+    operator()(const gamete_type &g, const std::vector<mtype> &mutations, const std::vector<uint_t> &mcounts) const noexcept
+    {
+        double muts = 0.0 ;
+        double fitness ;
+        for(const std::uint32_t &key : g.smutations){
+            muts += 1.0 ;
+        }
+        //fitness = 1.0 - (s*muts) - b*(muts*(muts-1.0)/2.0) ;
+        fitness = exp(-(s*muts) - b*(muts*(muts-1.0)/2.0)) ;
+        return std::max(0., fitness);
+    }
+};
+
+
+
 class nfds
 {
   private:
@@ -61,6 +93,8 @@ class nfds
 
 
 
+
+// FITNESS FUNCTIONS FOR 2 POPULATIONS
 struct pop_sign_seln_multiplicative
 {
     // demes have opposite selection pressures, positive in deme0, negative in deme1

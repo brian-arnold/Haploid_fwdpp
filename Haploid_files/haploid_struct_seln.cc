@@ -164,9 +164,9 @@ main(int argc, char **argv)
             // group haploids into diploids, in order to use diploid printing function
             std::vector< std::pair<std::size_t, std::size_t>> pseudodips ;
             // collect sample from entire metapopulation
-            pseudodips = group_haps_into_dips(r.get(), pop.gametes) ;
+            //pseudodips = group_haps_into_dips(r.get(), pop.gametes) ;
             // collect sample from N1
-            //pseudodips = group_N1haps_into_dips(r.get(), pop.gametes, pop.haploids, N1) ;
+            pseudodips = group_N1haps_into_dips(r.get(), pop.gametes, pop.haploids, N1) ;
 
             
             

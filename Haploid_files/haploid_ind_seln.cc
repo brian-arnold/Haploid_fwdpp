@@ -102,7 +102,7 @@ main(int argc, char **argv)
     
     // initialize nfds fitness function with pop size and equilibrium freq
     nfds nfds_func(N, 0.5) ;
-    
+    quadratic_synepistasis_negseln epi(s, s/10.0) ;
     
     while (nreps--)
         {
@@ -166,7 +166,7 @@ main(int argc, char **argv)
                         Fitness function, can only pass pointers to functions
                          or function objects
                         */
-                        multiplicative_negseln_haploid(),
+                        epi,
                         pop.neutral,
                         pop.selected);
                         // 2 more args in template defn but they have defaults
