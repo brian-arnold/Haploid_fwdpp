@@ -1,0 +1,7 @@
+SampleSize_resultsFile: 10
+######## number of individuals with seqs
+N1	10
+N2	10
+Num segsites N1	287
+Num segsites N2	345
+Num SelPos	0
