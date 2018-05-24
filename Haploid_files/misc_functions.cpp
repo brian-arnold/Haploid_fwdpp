@@ -127,7 +127,37 @@ group_N1haps_into_dips(const gsl_rng *r,
     return pseudodips ;
 }
 
+// this function prints haploids only from a single population (in the case of
+// structure), here, population N12, which correspond to the indices N1->N2
+// of pop.haploids
+template <typename gamete_type,
+typename gamete_cont_type_allocator,
+template <typename, typename> class gamete_cont_type,
+typename haploid_geno_type,
+typename haploid_vector_type_allocator,
+template <typename, typename> class haploid_vector_type>
 
+std::vector< std::pair<std::size_t, std::size_t> >
+group_N2haps_into_dips(const gsl_rng *r,
+                       gamete_cont_type<gamete_type, gamete_cont_type_allocator> &gametes,
+                       haploid_vector_type<haploid_geno_type, haploid_vector_type_allocator> &haploids,
+                       const unsigned &N1,
+                       const unsigned &N2)
+{
+    
+    using diploid_t = std::pair<std::size_t, std::size_t> ;
+    using dipvector_t = std::vector<diploid_t> ;
+    dipvector_t pseudodips((N2/2), diploid_t(0,0)) ;
+    // haploids are random samples from pop, so just pair off indices
+    int count = 0 ;
+    for (uint_t i = N1; i < (N1+N2)-1; i+=2){
+        pseudodips[count].first = haploids[i] ;
+        pseudodips[count].second = haploids[i+1] ;
+        count++ ;
+    }
+    
+    return pseudodips ;
+}
 #endif
 
 

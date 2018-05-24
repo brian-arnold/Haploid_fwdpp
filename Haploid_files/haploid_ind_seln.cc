@@ -83,15 +83,17 @@ main(int argc, char **argv)
     std::string filename1 = "time.txt" ;
     std::ofstream out ;
     out.open(filename1.c_str()) ;
+    out.precision(10) ;
     // File to print main output
     std::string filename2 = "results.txt" ;
     std::ofstream results ;
     results.open(filename2.c_str()) ;
+    results.precision(10) ;
     // File to print selected positions
     std::string filename3 = "selected_pos.txt" ;
     std::ofstream selpos ;
     selpos.open(filename3.c_str()) ;
- 
+    selpos.precision(10) ;
     // Write the command line to output file
     std::copy(argv, argv + argc, std::ostream_iterator<char *>(results, " "));
     results << '\n';
@@ -166,7 +168,7 @@ main(int argc, char **argv)
                         Fitness function, can only pass pointers to functions
                          or function objects
                         */
-                        epi,
+                        multiplicative_negseln_haploid(),
                         pop.neutral,
                         pop.selected);
                         // 2 more args in template defn but they have defaults

@@ -7,15 +7,15 @@ use List::Util qw(first max maxstr min minstr reduce shuffle sum) ;
 #############################################
 # THIS SCRIPT LOOKS THROUGH A FILE OF MS-LIKE
 # OUTPUT, ANALYZES A SINGLE REPLICATE
+# CATEGORIZES DATA BY NONSYNONYMOUS SNP DENSITY
 #############################################
 
 my $results_file = $ARGV[0] ;
 my $selpos_file = $ARGV[1] ;
 my $rep = $ARGV[2] ;
-my $gene_size = 1000 ;
+my $gene_size = 3000 ;
 my $quantiles = 5 ;
 my $max_mutationFreq = 100 ;
-my $Bootreps = 1 ;
 unless(-e "rep${rep}_summaries"){
 	system("mkdir rep${rep}_summaries") ;
 }
@@ -45,6 +45,7 @@ my $sq_sum ;
 my %multi_allele_sites ; #  $multi_allele_sites{num hits} = count ;
 my %Seq_data ; #  $Seq_data{index} = scalar of 0's and 1's
 my %Segsites ; # $Segsites{index} = site ;
+my %Segsites_tmphash ; # $Segsites{site} ++
 my %Segsites_Bi_PosInChromo; ; # $Segsites{index} = site ;
 my %Segsites_Bi_PosInGenostring ; # for mapping back to positin in string of 0's and 1's
 my %AFS ; # $AFS{1}{site} = AF ; 
@@ -56,6 +57,7 @@ my %PairWise_LD_vs_dist ;
 my %PairWise_PC_vs_dist ;
 
 my %SelPos ;
+my %SelPos_tmphash ;
 
 #############################################
 # ASSEMBLE SEQUENCES PER GENE PER IND
@@ -118,7 +120,8 @@ while(<IN>){
 			my $positionsline = <IN> ; chomp $positionsline ;
 			@line = split(" ", $positionsline) ;
 			foreach my $x ( 1..$num_segsites_raw ){
-				$Segsites{($x-1)} = (int($line[$x]*$num_sites)) ;
+				$Segsites{($x-1)} = ($line[$x]) ;
+				$Segsites_tmphash{$line[$x]}++ ; # to check if sel positions exist
 			}
 		
 			foreach my $ind (0..($Sample_size-1)){
@@ -135,7 +138,7 @@ if($max_mutationFreq > $Sample_size){
 	$max_mutationFreq = $Sample_size ;
 }
 
-
+print QC "SampleSize_resultsFile: ", $Sample_size, "\n" ;
 print QC "######## number of individuals with seqs\n" ;
 print QC scalar keys %Seq_data, "\n" ;
 print QC "num segsites ", scalar keys %Segsites, "\n" ;
@@ -155,8 +158,11 @@ while(<IN>){
 				chomp $line ;
 				if($line !~ m/POSITIONS/ && $line !~ m/\/\//){
 					my @info = split(/:/, $line) ;
-					 my $pos = $info[0] ;
-					$SelPos{ int($pos*$num_sites) }++ ;
+					my $pos = $info[0] ;
+					my $freq = $info[2] ;
+					if($freq > 0){
+						$SelPos_tmphash{ $pos }++ ;
+					}
 				}
 			}
 		}
@@ -174,6 +180,31 @@ foreach my $site (sort {$a <=> $b} keys %Segsites){
 	}
 }
 =cut
+
+#print "SELPOS\t", scalar keys %SelPos_tmphash, "\n" ;
+#############################################
+# DELETE SELECTED POSITIONS [0,1] NOT IN SAMPLE
+# this helps prevent extra selected positions from 
+# getting created when making them into integers later
+#############################################
+foreach my $pos ( keys %SelPos_tmphash ){
+	if( !exists $Segsites_tmphash{$pos} ){
+		delete $SelPos_tmphash{$pos} ;
+	}
+}
+#print "SELPOS\t", scalar keys %SelPos_tmphash, "\n" ;
+
+
+
+#############################################
+# CONVERT POSITIONS TO INTEGERS
+#############################################
+foreach my $cnt ( keys %Segsites ){
+	$Segsites{$cnt} = int($Segsites{$cnt}*$num_sites) ;
+}
+foreach my $pos ( keys %SelPos_tmphash ){
+	$SelPos{ int($pos*$num_sites) }++ ;
+}
 
 
 #############################################

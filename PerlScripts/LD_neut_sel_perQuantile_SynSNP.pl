@@ -7,6 +7,7 @@ use List::Util qw(first max maxstr min minstr reduce shuffle sum) ;
 #############################################
 # THIS SCRIPT LOOKS THROUGH A FILE OF MS-LIKE
 # OUTPUT, ANALYZES A SINGLE REPLICATE
+# CATEGORIZES DATA BY SYNONYMOUS SNP DENSITY
 #############################################
 
 my $results_file = $ARGV[0] ;
