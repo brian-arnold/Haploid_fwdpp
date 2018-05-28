@@ -1,12 +1,7 @@
 /*! \include diploid_ind.cc
-  Simulate a single, finite Wright-Fisher diploid population with mutation,
-  recombination, and no selection.
+  Simulate a structured, finite Wright-Fisher diploid population with mutation,
+  recombination, and selection.
 
-  This program illustrates many features of fwdpp:
-  1.  Custom mutation classes
-  2.  Implementing a mutation model (infinitely-many sites)
-  3.  Iterating a population through its life cycle
-  4.  Outputting a sample in "ms" format
 */
 #include <iostream>
 #include <fstream>

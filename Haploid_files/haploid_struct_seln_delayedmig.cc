@@ -1,13 +1,8 @@
-/*! \include diploid_ind.cc
+/*!
   Simulate a structured, finite Wright-Fisher population with mutation,
   recombination, and selection. Migration only occurs after ngenMig
   generations
 
-  This program illustrates many features of fwdpp:
-  1.  Custom mutation classes
-  2.  Implementing a mutation model (infinitely-many sites)
-  3.  Iterating a population through its life cycle
-  4.  Outputting a sample in "ms" format
 */
 #include <iostream>
 #include <fstream>
@@ -180,9 +175,9 @@ main(int argc, char **argv)
             std::vector< std::pair<std::size_t, std::size_t>> pseudodips1 ;
             std::vector< std::pair<std::size_t, std::size_t>> pseudodips2 ;
             // collect sample from entire metapopulation
-            pseudodips1 = group_haps_into_dips(r.get(), pop.gametes) ;
+            //pseudodips1 = group_haps_into_dips(r.get(), pop.gametes) ;
             // collect sample from N1
-            //pseudodips1 = group_N1haps_into_dips(r.get(), pop.gametes, pop.haploids, N1) ;
+            pseudodips1 = group_N1haps_into_dips(r.get(), pop.gametes, pop.haploids, N1) ;
             pseudodips2 = group_N2haps_into_dips(r.get(), pop.gametes, pop.haploids, N1, N2) ;
                         
             std::vector<std::pair<double, std::string>> mslike1
