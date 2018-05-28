@@ -3,7 +3,7 @@
 SHELL=/usr/bin/env bash -eo pipefail
 
 F=../fwdpp
-P=../haploid_ind_seln ../haploid_ind_neutral ../haploid_struct_neutral ../haploid_struct_seln
+P=../haploid_ind_seln ../haploid_ind_neutral ../haploid_struct_neutral ../haploid_struct_seln ../haploid_struct_seln_delayedmig
 FLAGS=-O3 -I$(F) -I/usr/local/include/ -std=c++11 -lsequence -lgsl -lgslcblas 
 ## for odyssey cluster
 #FLAGS=-O3 -I$(F) -I/n/home11/bjarnold/include/ -L/n/home11/bjarnold/lib -std=c++11 -lsequence -lgsl -lgslcblas

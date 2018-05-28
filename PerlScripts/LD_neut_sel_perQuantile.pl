@@ -575,7 +575,7 @@ foreach my $quant (sort{$a <=> $b} keys %PairWise_D_SYN_BetweenGene){
 	print OUT1 $sum_D/(scalar @{$PairWise_D_SYN_BetweenGene{$quant}}), "\t", $sum_Dpr/(scalar @{$PairWise_Dprime_SYN_BetweenGene{$quant}}), "\n" ;
 }
 close OUT1 ;
-print QC "AVG LD SYN BETWEEN GENE:\n" ;
+print QC "AVG LD SYN BETWEEN GENE:\t" ;
 if($total_D_SYN_tally){
 	print QC $total_D_SYN/$total_D_SYN_tally, "\n"
 }else{
@@ -605,7 +605,7 @@ foreach my $quant (sort{$a <=> $b} keys %PairWise_D_NONSYN_BetweenGene){
 }
 close OUT1 ;
 
-print QC "AVG LD NONSYN BETWEEN GENE:\n" ;
+print QC "AVG LD NONSYN BETWEEN GENE:\t" ;
 if($total_D_NONSYN_tally){
 	print QC $total_D_NONSYN/$total_D_NONSYN_tally, "\n"
 }else{

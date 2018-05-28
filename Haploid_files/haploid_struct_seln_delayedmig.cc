@@ -1,6 +1,7 @@
 /*! \include diploid_ind.cc
-  Simulate a single, finite Wright-Fisher diploid population with mutation,
-  recombination, and no selection.
+  Simulate a structured, finite Wright-Fisher population with mutation,
+  recombination, and selection. Migration only occurs after ngenMig
+  generations
 
   This program illustrates many features of fwdpp:
   1.  Custom mutation classes
@@ -26,11 +27,11 @@ using mtype = fwdpp::popgenmut;
 int
 main(int argc, char **argv)
 {
-    if (argc != 15)
+    if (argc != 16)
         {
             std::cerr << "Too few arguments\n"
                       << "Usage: haploid_ind N1 N2 m12 m21 theta_neutral theta_sel rho fragsize meantrlen s "
-                         "ngens samplesize nreps seed\n";
+                         "ngens ngenMig samplesize nreps seed\n";
             exit(0);
         }
     int argument = 1;
@@ -47,6 +48,7 @@ main(int argc, char **argv)
     const unsigned ngens = unsigned(atoi(argv[argument++])); // Number of generations to simulate
     const unsigned samplesize1 = unsigned(atoi(argv[argument++])); // Sample size to draw from the population
     int nreps = atoi(argv[argument++]); // Number of replicates to simulate
+    const unsigned ngenMig = unsigned(atoi(argv[argument++])); // Number of generations to simulate
     const unsigned seed = unsigned(atoi(argv[argument++])); // Random number seed
     
     const unsigned N = N1 + N2; // Total metapop size, for convenience
@@ -143,7 +145,7 @@ main(int argc, char **argv)
             for (generation = 0; generation < ngens; ++generation)
                 {
                     // Iterate the population through 1 generation
-                    sample_haploid_struct_recmig(
+                    sample_haploid_struct_delayed_recmig(
                         r.get(),
                         pop,
                         N1,     // Popsize deme1
@@ -160,6 +162,9 @@ main(int argc, char **argv)
                         mmodel,
                         // The function to generation recombination positions:
                         rec,
+                        // recombination between populations only occers after ngenMig generations
+                        generation,
+                        ngenMig,
                         /*
                         Fitness function, can only pass pointers to functions
                          or function objects
@@ -175,9 +180,9 @@ main(int argc, char **argv)
             std::vector< std::pair<std::size_t, std::size_t>> pseudodips1 ;
             std::vector< std::pair<std::size_t, std::size_t>> pseudodips2 ;
             // collect sample from entire metapopulation
-            //pseudodips = group_haps_into_dips(r.get(), pop.gametes) ;
+            pseudodips1 = group_haps_into_dips(r.get(), pop.gametes) ;
             // collect sample from N1
-            pseudodips1 = group_N1haps_into_dips(r.get(), pop.gametes, pop.haploids, N1) ;
+            //pseudodips1 = group_N1haps_into_dips(r.get(), pop.gametes, pop.haploids, N1) ;
             pseudodips2 = group_N2haps_into_dips(r.get(), pop.gametes, pop.haploids, N1, N2) ;
                         
             std::vector<std::pair<double, std::string>> mslike1

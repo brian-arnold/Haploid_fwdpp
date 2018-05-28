@@ -2,13 +2,12 @@
 use warnings ;
 use strict ;
 
-my $outputFile_name = $ARGV[0] ;
-my $reps = $ARGV[1] ;
+my $reps = $ARGV[0] ;
 
 # JOB SUBMISSION PARAMETERS
-my $queue = "general" ;
-my $time = 1000 ;
-my $mem = 1000 ;
+my $queue = "serial_requeue" ;
+my $time = 1400 ;
+my $mem = 3700 ;
 my $n_cores = 1 ;
 
 foreach my $rep ( 1..$reps ){
@@ -23,9 +22,9 @@ foreach my $rep ( 1..$reps ){
 	$script = $script."#SBATCH -t ${time}"."\n" ;
 	$script = $script."#SBATCH --mem ${mem}"."\n" ;
 	$script = $script."#SBATCH -N 1"."\n\n" ;
-	
 	# execute script
-	$script = $script."perl /n/regal/hanage_lab/ForBrian/Haploid_fwdpp/PerlScripts/Summarize_ms_results_LDslices.pl ${outputFile_name} ${rep}" ;
+	#$script = $script."perl /n/regal/hanage_lab/ForBrian/Haploid_fwdpp/PerlScripts/LD_neut_sel_perQuantile.pl results.txt selected_pos.txt ${rep}" ;
+	$script = $script."perl /n/regal/hanage_lab/ForBrian/Haploid_fwdpp/PerlScripts/LD_between_neut_sel_bootstrap.pl results.txt selected_pos.txt 214 ${rep}" ;
 	$script = $script."\n" ;
 	print $script ;
 
@@ -39,3 +38,4 @@ foreach my $rep ( 1..$reps ){
 
 
 exit ;
+
