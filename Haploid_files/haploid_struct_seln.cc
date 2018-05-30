@@ -81,10 +81,15 @@ main(int argc, char **argv)
     std::ofstream results2 ;
     results2.open(filename3.c_str()) ;
     results2.precision(10) ;
+    // File to print main output, N2 pop
+    std::string filename4 = "resultsboth.txt" ;
+    std::ofstream resultsboth ;
+    resultsboth.open(filename4.c_str()) ;
+    resultsboth.precision(10) ;
     // File to print selected positions
-    std::string filename4 = "selected_pos.txt" ;
+    std::string filename5 = "selected_pos.txt" ;
     std::ofstream selpos ;
-    selpos.open(filename4.c_str()) ;
+    selpos.open(filename5.c_str()) ;
     selpos.precision(10) ;
 
     // Write the command line to output file
@@ -92,6 +97,8 @@ main(int argc, char **argv)
     results << '\n';
     std::copy(argv, argv + argc, std::ostream_iterator<char *>(results2, " "));
     results2 << '\n';
+    std::copy(argv, argv + argc, std::ostream_iterator<char *>(resultsboth, " "));
+    resultsboth << '\n';
     
     // START CLOCK
     time_t begin, end;
@@ -169,10 +176,12 @@ main(int argc, char **argv)
             // group haploids into diploids, in order to use diploid printing function
             std::vector< std::pair<std::size_t, std::size_t>> pseudodips1 ;
             std::vector< std::pair<std::size_t, std::size_t>> pseudodips2 ;
+            std::vector< std::pair<std::size_t, std::size_t>> pseudodipsboth ;
             // collect sample from entire metapopulation
-            //pseudodips = group_haps_into_dips(r.get(), pop.gametes) ;
+            pseudodipsboth = group_haps_into_dips(r.get(), pop.gametes) ;
             // collect sample from N1
             pseudodips1 = group_N1haps_into_dips(r.get(), pop.gametes, pop.haploids, N1) ;
+            // collect sample from N2
             pseudodips2 = group_N2haps_into_dips(r.get(), pop.gametes, pop.haploids, N1, N2) ;
                         
             std::vector<std::pair<double, std::string>> mslike1
@@ -181,6 +190,9 @@ main(int argc, char **argv)
             std::vector<std::pair<double, std::string>> mslike2
                     = fwdpp::ms_sample(r.get(), pop.mutations, pop.gametes,
                                        pseudodips2, samplesize1, true);
+            std::vector<std::pair<double, std::string>> mslike3
+                    = fwdpp::ms_sample(r.get(), pop.mutations, pop.gametes,
+                               pseudodipsboth, samplesize1, true);
             // Write the sample date a to libsequence's Sequence::SimData and
             // print to file
             Sequence::SimData sdata1;
@@ -197,6 +209,13 @@ main(int argc, char **argv)
                 results2 << sdata2 << '\n';
             }else{
                 results2 << "//\nsegsites: 0\n";
+            }
+            Sequence::SimData sdata3;
+            if (!mslike3.empty()){
+                sdata3.assign(mslike3.begin(), mslike3.end());
+                resultsboth << sdata3 << '\n';
+            }else{
+                resultsboth << "//\nsegsites: 0\n";
             }
             //print file of positions under selection
             selpos << "//\n" ;
