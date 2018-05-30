@@ -1,16 +1,17 @@
 #!usr/bin/perl
 use warnings ;
 use strict ;
-use lib "/n/holyscratch/bomblies_lab/bjarnold/List-MoreUtils-0.33/lib" ;
-use List::Util qw(first max maxstr min minstr reduce shuffle sum) ;
 
 #############################################
 # THIS SCRIPT LOOKS THROUGH A FILE OF MS-LIKE
-# OUTPUT, ANALYZES A SINGLE REPLICATE
+# OUTPUT, CONVERTS TO DNA SEQUENCE DATA
 #############################################
 
-my $file = $ARGV[0] ;
-my $rep = $ARGV[1] ;
+my $results_file = $ARGV[0] ;
+my $selpos_file = $ARGV[1] ;
+my $rep = $ARGV[2] ;
+
+#open QC, ">./QC.txt" ;
 
 my $pop_size ;
 my $Sample_size ;
@@ -20,6 +21,12 @@ my $rec_rate ;
 my $theta ;
 my $gene_conv_rate ;
 my $TrLen ;
+my $min_AF = 0.0 ;
+my $max_AF = 1.0 ;
+
+my $lower ;
+my $upper ;
+my $middle ;
 
 #############################################
 # DATA STRUCTURES
@@ -30,18 +37,28 @@ my $sq_sum ;
 my %multi_allele_sites ; #  $multi_allele_sites{num hits} = count ;
 my %Seq_data ; #  $Seq_data{index} = scalar of 0's and 1's
 my %Segsites ; # $Segsites{index} = site ;
+my %Segsites_tmphash ; # $Segsites{site} ++
+my %Segsites_Bi_PosInChromo; ; # $Segsites{index} = site ;
+my %Segsites_Bi_PosInGenostring ; # for mapping back to positin in string of 0's and 1's
+my %AFS ; # $AFS{1}{site} = AF ; 
+my %AFS_forPrinting ;
+my %Pairwise_Dprime  ; # $Pairwise_Dprime{site1}{site2} = D' ;
+
 my %Segsites_filtered_positionsInDNA ;
 
+my %SelPos ;
+my %SelPos_tmphash ;
 
 #############################################
 # ASSEMBLE SEQUENCES PER GENE PER IND
+# WHICH PROGRAM WAS USED?
 #############################################
 my $replicate = 0 ;
-open IN, "<./${file}" ;
+open IN, "<./${results_file}" ;
 my $num_segsites_raw = 0 ;
 while(<IN>){
 	chomp $_ ;
-	if($_ =~ m/^\.\/haploid_ind_neut/ ){ # command used with arguments
+	if($_ =~ m/haploid/ ){ # command used with arguments
 		my @line = split(" ", $_) ;
 		$pop_size = $line[1] ;
 		$Sample_size = $line[7] ;
@@ -51,13 +68,13 @@ while(<IN>){
 		$num_sites = $line[4] ;
 		$TrLen = $line[5] ;
 	}
-	if($_ =~ m/^\.\/haploid_ind_seln/ ){ # command used with arguments
+	if($_ =~ m/haploid_ind_seln/ ){ # command used with arguments
 		my @line = split(" ", $_) ;
 		$Sample_size = $line[9] ;
 		$num_reps = $line[10] ;
 		$num_sites = $line[5] ;
 	}
-	if($_ =~ m/^\.\/ms/ ){ # command used with arguments
+	if($_ =~ m/ms/ ){ # command used with arguments
 		my @line = split(" ", $_) ;
 		$Sample_size = $line[1] ;
 		$num_reps = $line[2] ;
@@ -66,7 +83,7 @@ while(<IN>){
 		$num_sites = $line[7] ;
 		$TrLen = $line[10] ;
 	}
-	if($_ =~ m/^\.\/haploid_struct_neutral/ ){ # command used with arguments
+	if($_ =~ m/haploid_struct_neutral/ ){ # command used with arguments
 		my @line = split(" ", $_) ;
 		$Sample_size = $line[10] ;
 		$num_reps = $line[11] ;
@@ -75,7 +92,7 @@ while(<IN>){
 		$num_sites = $line[7] ;
 		$TrLen = $line[8] ;
 	}
-	if($_ =~ m/^\.\/haploid_struct_seln/ ){ # command used with arguments
+	if($_ =~ m/haploid_struct_seln/ ){ # command used with arguments
 		my @line = split(" ", $_) ;
 		$Sample_size = $line[12] ;
 		$num_reps = $line[13] ;
@@ -84,20 +101,20 @@ while(<IN>){
 		$num_sites = $line[8] ;
 		$TrLen = $line[9] ;
 	}
-
 	if($_ =~ m/\/\//){ # beginning of replicate
 		$replicate++ ;
 		if($replicate == $rep){
 			my $segsitesline = <IN> ; chomp $segsitesline ;
 			my @line = split(" ", $segsitesline) ;
 			$num_segsites_raw = $line[1] ;
-			# load positions
+		
 			my $positionsline = <IN> ; chomp $positionsline ;
 			@line = split(" ", $positionsline) ;
 			foreach my $x ( 1..$num_segsites_raw ){
-				$Segsites{($x-1)} = (int($line[$x]*$num_sites)) ;
+				$Segsites{($x-1)} = ($line[$x]) ;
+				$Segsites_tmphash{$line[$x]}++ ; # to check if sel positions exist
 			}
-			# load sequences
+		
 			foreach my $ind (0..($Sample_size-1)){
 				my $x = <IN> ; chomp $x ;
 				$Seq_data{ $ind } = $x ;
@@ -106,6 +123,72 @@ while(<IN>){
 	}
 }
 close IN ;
+
+#print QC "SampleSize_resultsFile: ", $Sample_size, "\n" ;
+#print QC "######## number of individuals with seqs\n" ;
+#print QC scalar keys %Seq_data, "\n" ;
+#print QC "num segsites ", scalar keys %Segsites, "\n" ;
+#foreach my $key (sort{$a<=>$b} keys %Segsites){
+#	print QC $key, "\t", $Segsites{$key}, "\n" ;
+#}
+#print QC "\n" ;
+
+$replicate = 0 ;
+open IN, "<./${selpos_file}" ;
+while(<IN>){
+	chomp $_ ;
+	if($_ =~ m/\/\//){ # beginning of replicate
+		$replicate++ ;
+		if($replicate == $rep){
+			while(my $line = <IN>){
+				chomp $line ;
+				if($line !~ m/POSITIONS/ && $line !~ m/\/\//){
+					my @info = split(/:/, $line) ;
+					my $pos = $info[0] ;
+					my $freq = $info[2] ;
+					if($freq > 0){
+						$SelPos_tmphash{ $pos }++ ;
+					}
+				}
+			}
+		}
+	}
+}
+close IN ;
+
+=begin
+foreach my $site (sort {$a <=> $b} keys %Segsites){
+	print $site, "\t", $Segsites{$site}, "\t" ;
+	if(exists $SelPos{$Segsites{$site}}){
+		print "SELECTED\n" ;
+	}else{
+		print "\n" ;
+	}
+}
+=cut
+
+#print "SELPOS\t", scalar keys %SelPos_tmphash, "\n" ;
+#############################################
+# DELETE SELECTED POSITIONS [0,1] NOT IN SAMPLE
+# this helps prevent extra selected positions from 
+# getting created when making them into integers later
+#############################################
+foreach my $pos ( keys %SelPos_tmphash ){
+	if( !exists $Segsites_tmphash{$pos} ){
+		delete $SelPos_tmphash{$pos} ;
+	}
+}
+#print "SELPOS\t", scalar keys %SelPos_tmphash, "\n" ;
+
+#############################################
+# CONVERT POSITIONS TO INTEGERS
+#############################################
+foreach my $cnt ( keys %Segsites ){
+	$Segsites{$cnt} = int($Segsites{$cnt}*$num_sites) ;
+}
+foreach my $pos ( keys %SelPos_tmphash ){
+	$SelPos{ int($pos*$num_sites) }++ ;
+}
 
 
 #############################################
@@ -131,16 +214,14 @@ foreach my $i ( 0..$num_segsites_raw-2 ){
 		}
 	}
 }
-#open OUT, ">./positions${rep}.fasta" ;
-my $count = 0 ;
-foreach my $key (sort{$a<=>$b} keys %Segsites){    
-	$Segsites_filtered_positionsInDNA{$Segsites{$key}} = $key ;  # key is position of segsite in 0/1 string
-	#print OUT $Segsites{$key}, "\n" ;
-	$count++ ;
+foreach my $key (sort{$a<=>$b} keys %Segsites){
+    $Segsites_filtered_positionsInDNA{$Segsites{$key}} = $key ;
 }
 undef %Segsites ; # ensure it's not used again
-#close OUT ;
-
+#print QC "num segsites unfiltered ", scalar keys %Segsites_filtered_positionsInDNA, "\n" ;
+#foreach my $key (sort{$a<=>$b} keys %Segsites_Bi_Unfiltered){
+#	print QC $key, "\t", $Segsites_Bi_Unfiltered_indices[$key], "\t", $Segsites_Bi_Unfiltered{$key}, "\n" ;
+#}
 
 open OUT, ">./DNA${rep}.fasta" ;
 foreach my $ind (sort {$a <=> $b} keys %Seq_data ){
@@ -161,6 +242,8 @@ foreach my $ind (sort {$a <=> $b} keys %Seq_data ){
 	print OUT "\n" ;
 }
 close OUT ;
+
+#close QC ;
 
 
 
