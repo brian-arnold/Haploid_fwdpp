@@ -24,7 +24,7 @@ foreach my $rep ( 1..$reps ){
 	$script = $script."#SBATCH -N 1"."\n\n" ;
 	# execute script
 	#$script = $script."perl /n/regal/hanage_lab/ForBrian/Haploid_fwdpp/PerlScripts/LD_neut_sel_perQuantile.pl results.txt selected_pos.txt ${rep}" ;
-	$script = $script."perl /n/regal/hanage_lab/ForBrian/Haploid_fwdpp/PerlScripts/LD_between_neut_sel_bootstrap.pl results.txt selected_pos.txt 214 ${rep} 1000 5" ;
+	$script = $script."perl /n/regal/hanage_lab/ForBrian/Haploid_fwdpp/PerlScripts/LD/LD_between_neut_sel_bootstrap.pl results.txt selected_pos.txt 214 ${rep} 1000 5" ;
 	$script = $script."\n" ;
 	print $script ;
 
