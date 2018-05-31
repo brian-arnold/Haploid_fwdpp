@@ -13,8 +13,8 @@ use List::Util qw(first max maxstr min minstr reduce shuffle sum) ;
 my $results_file = $ARGV[0] ;
 my $selpos_file = $ARGV[1] ;
 my $rep = $ARGV[2] ;
-my $gene_size = 3000 ;
-my $quantiles = 5 ;
+my $gene_size = 1000 ;
+my $quantiles = 1 ;
 my $max_mutationFreq = 100 ;
 unless(-e "rep${rep}_summaries"){
 	system("mkdir rep${rep}_summaries") ;

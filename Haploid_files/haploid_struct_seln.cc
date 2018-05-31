@@ -166,7 +166,7 @@ main(int argc, char **argv)
                         Fitness function, can only pass pointers to functions
                          or function objects
                         */
-                        pop_pos_seln_multiplicative());
+                        pop_sign_seln_multiplicative());
                         // 2 more args in template defn but they have defaults
                     fwdpp::update_mutations(pop.mutations, pop.fixations,
                                             pop.fixation_times, pop.mut_lookup,

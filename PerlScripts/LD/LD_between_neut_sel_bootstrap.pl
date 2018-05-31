@@ -13,9 +13,9 @@ my $results_file = $ARGV[0] ;
 my $selpos_file = $ARGV[1] ;
 my $max_mutationFreq = $ARGV[2] ;
 my $rep = $ARGV[3] ;
-my $gene_size = 1000 ;
-my $quantiles = 5 ;
-my $Bootreps = 10 ;
+my $gene_size = 10000 ;
+my $quantiles = 1 ;
+my $Bootreps = 100 ;
 
 unless(-e "rep${rep}_summaries"){
 	system("mkdir rep${rep}_summaries") ;
@@ -339,7 +339,7 @@ foreach my $bootrep ( 1 .. $Bootreps ){
 			$tmp_sum += $gene ;
 		}
 	}	
-	print $tmp_sum, "\n" ;
+	#print $tmp_sum, "\n" ;
 =begin	
 	print QC "GENE\tQUANT\tNONSYNSNPS\tSYNSNPS\n" ;
 	foreach my $quant ( 0 .. $quantiles-1 ){
@@ -365,10 +365,10 @@ foreach my $bootrep ( 1 .. $Bootreps ){
 		#}
 	}
 =cut
-	print QC "Quantile\tMean\n" ;
-	foreach my $quant (keys %Quant_means){
-		print QC $quant, "\t", $Quant_means{$quant}, "\n" ;
-	}
+	#print QC "Quantile\tMean\n" ;
+	#foreach my $quant (keys %Quant_means){
+	#	print QC $quant, "\t", $Quant_means{$quant}, "\n" ;
+	#}
 
 	#############################################
 	##	CALC RESAMPLE SIZE PER ALLELE FREQ
