@@ -19,12 +19,12 @@ my $N2 = 5000 ; 	# size of population 2
 my $m12 = 0.5 ;		# prob recomb frag in pop1 comes from pop2
 my $m21 = 0.5 ;		# prob recomb frag in pop2 comes from pop1
 my $theta_neut = 1000 ; # population mutation rate of neutral mutations (same for both pops)
-my $theta_seln = 10 ;	# population mutation rate of selected mutations (same for both pops)
+my $theta_seln = 0.1 ;	# population mutation rate of selected mutations (same for both pops)
 my $rho = 1000 ;	# population recombination rate (same for both pops)
 my $fragsize = 100000 ;	# size of fragment to simulate
 my $trLen = 1000 ;	# mean size of recombination tract lengths (geometrically distributed)
-my $selcoeff = 0.001 ;	# selection coefficient of selected mutations
-my $gens = 50000 ;	# number of generations to simulate (~10N gens for equilibrium)
+my $selcoeff = 0.005 ;	# selection coefficient of selected mutations
+my $gens = 100000 ;	# number of generations to simulate (~10N gens for equilibrium)
 my $samplesize = 200 ;	# sample size
 my $replicates = 1 ;	# number of replicates
 

@@ -243,6 +243,19 @@ foreach my $ind (sort {$a <=> $b} keys %Seq_data ){
 }
 close OUT ;
 
+open OUT, ">./VariablePositions${rep}.txt" ;
+foreach my $cnt ( sort{$a <=> $b} keys %Segsites ){
+	print OUT $Segsites{$cnt}, "\t" ;
+	if(exists $SelPos{$Segsites{$cnt}}){
+		print OUT "SELECTED\n" ;
+	}else{
+		print OUT "NEUTRAL\n" ;
+	}
+}
+
+close OUT ;
+
+
 #close QC ;
 
 
