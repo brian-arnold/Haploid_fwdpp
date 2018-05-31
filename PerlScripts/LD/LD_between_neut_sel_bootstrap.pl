@@ -13,9 +13,12 @@ my $results_file = $ARGV[0] ;
 my $selpos_file = $ARGV[1] ;
 my $max_mutationFreq = $ARGV[2] ;
 my $rep = $ARGV[3] ;
-my $gene_size = 10000 ;
-my $quantiles = 1 ;
+my $gene_size = $ARGV[4] ;
+my $quantiles = $ARGV[5] ;
 my $Bootreps = 100 ;
+unless(scalar @ARGV == 6){
+	print "not enough args\n" ; exit ;
+}
 
 unless(-e "rep${rep}_summaries"){
 	system("mkdir rep${rep}_summaries") ;
