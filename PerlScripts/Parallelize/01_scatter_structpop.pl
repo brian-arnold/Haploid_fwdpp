@@ -9,7 +9,7 @@ my $reps = $ARGV[0] ;
 #####
 my $simulator = "haploid_struct_seln" ;
 my $simulator_dir = "/n/regal/hanage_lab/ForBrian/Haploid_fwdpp" ;
-my $pathToLibseq = "/n/home11/bjarnold/lib" ;
+my $Libseq_dir = "/n/home11/bjarnold/lib" ;
 
 ######
 # SIMULATOR PARAMETERS
@@ -44,7 +44,6 @@ unless($reps){
 }
 foreach my $rep ( 1..$reps ){
 	system("mkdir rep${rep}") ;
-	#system("cp ${simulator_dir}/${simulator} rep${rep}") ;
 
 	my $script = "#!/bin/bash"."\n" ;
 	$script = $script."#SBATCH -J fwdpp${rep}"."\n" ;
@@ -61,7 +60,7 @@ foreach my $rep ( 1..$reps ){
 	$script = $script."source new-modules.sh\n" ;
 	$script = $script."module load gcc/7.1.0-fasrc01\n" ;
 	# specify path to linked library libsequence
-	$script = $script."export LD_LIBRARY_PATH=${pathToLibseq}:\$LD_LIBRARY_PATH\n" ;
+	$script = $script."export LD_LIBRARY_PATH=${Libseq_dir}:\$LD_LIBRARY_PATH\n" ;
 	# execute script
 	$script = $script."${simulator_dir}/${simulator} " ;
 	$script = $script."${N1} " ;
