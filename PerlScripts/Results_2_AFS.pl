@@ -58,7 +58,7 @@ open IN, "<./${file}" ;
 my $num_segsites_raw = 0 ;
 while(<IN>){
 	chomp $_ ;
-	if($_ =~ m/^\.\/haploid/ ){ # command used with arguments
+	if($_ =~ m/haploid/ ){ # command used with arguments
 		my @line = split(" ", $_) ;
 		$pop_size = $line[1] ;
 		$Sample_size = $line[7] ;
@@ -68,13 +68,13 @@ while(<IN>){
 		$num_sites = $line[4] ;
 		$TrLen = $line[5] ;
 	}
-	if($_ =~ m/^\.\/haploid_ind_seln/ ){ # command used with arguments
+	if($_ =~ m/haploid_ind_seln/ ){ # command used with arguments
 		my @line = split(" ", $_) ;
 		$Sample_size = $line[9] ;
 		$num_reps = $line[10] ;
 		$num_sites = $line[5] ;
 	}
-	if($_ =~ m/^\.\/ms/ ){ # command used with arguments
+	if($_ =~ m/ms/ ){ # command used with arguments
 		my @line = split(" ", $_) ;
 		$Sample_size = $line[1] ;
 		$num_reps = $line[2] ;
@@ -83,7 +83,7 @@ while(<IN>){
 		$num_sites = $line[7] ;
 		$TrLen = $line[10] ;
 	}
-	if($_ =~ m/^\.\/haploid_struct_neutral/ ){ # command used with arguments
+	if($_ =~ m/haploid_struct_neutral/ ){ # command used with arguments
 		my @line = split(" ", $_) ;
 		$Sample_size = $line[10] ;
 		$num_reps = $line[11] ;
@@ -92,7 +92,7 @@ while(<IN>){
 		$num_sites = $line[7] ;
 		$TrLen = $line[8] ;
 	}
-	if($_ =~ m/^\.\/haploid_struct_seln/ ){ # command used with arguments
+	if($_ =~ m/haploid_struct_seln/ ){ # command used with arguments
 		my @line = split(" ", $_) ;
 		$Sample_size = $line[12] ;
 		$num_reps = $line[13] ;

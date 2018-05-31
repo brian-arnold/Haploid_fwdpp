@@ -25,7 +25,7 @@ my $fragsize = 100000 ;	# size of fragment to simulate
 my $trLen = 1000 ;	# mean size of recombination tract lengths (geometrically distributed)
 my $selcoeff = 0.005 ;	# selection coefficient of selected mutations
 my $gens = 100000 ;	# number of generations to simulate (~10N gens for equilibrium)
-my $samplesize = 200 ;	# sample size
+my $samplesize = 200 ;	# sample size taken from the population
 my $replicates = 1 ;	# number of replicates
 
 ######
