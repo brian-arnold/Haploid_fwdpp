@@ -244,9 +244,9 @@ foreach my $ind (sort {$a <=> $b} keys %Seq_data ){
 close OUT ;
 
 open OUT, ">./VariablePositions${rep}.txt" ;
-foreach my $cnt ( sort{$a <=> $b} keys %Segsites ){
-	print OUT $Segsites{$cnt}, "\t" ;
-	if(exists $SelPos{$Segsites{$cnt}}){
+foreach my $pos ( sort{$a <=> $b} keys %Segsites_filtered_positionsInDNA ){
+	print OUT $pos, "\t" ;
+	if(exists $SelPos{$pos}){
 		print OUT "SELECTED\n" ;
 	}else{
 		print OUT "NEUTRAL\n" ;
