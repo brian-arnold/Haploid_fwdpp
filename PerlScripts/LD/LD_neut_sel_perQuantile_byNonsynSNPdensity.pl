@@ -15,11 +15,12 @@ my $selpos_file = $ARGV[1] ;
 my $rep = $ARGV[2] ;
 my $gene_size = 1000 ;
 my $quantiles = 1 ;
-my $max_mutationFreq = 100 ;
 unless(-e "rep${rep}_summaries"){
 	system("mkdir rep${rep}_summaries") ;
 }
 open QC, ">./rep${rep}_summaries/QC.txt" ;
+print QC "Gene size:\t", $gene_size, "\n" ;
+print QC "Quantiles:\t", $quantiles, "\n" ;
 
 my $pop_size ;
 my $Sample_size ;
@@ -133,10 +134,6 @@ while(<IN>){
 }
 close IN ;
 $SumStat_Results{"S_star"} = $num_segsites_raw/$num_sites ;
-
-if($max_mutationFreq > $Sample_size){
-	$max_mutationFreq = $Sample_size ;
-}
 
 print QC "SampleSize_resultsFile: ", $Sample_size, "\n" ;
 print QC "######## number of individuals with seqs\n" ;
