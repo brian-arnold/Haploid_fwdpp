@@ -56,10 +56,6 @@ void sample_haploid_struct_indmig(
       // 12 args
       const gsl_rng *r,
       structpop_t &pop,
-      //gamete_cont_type<gamete_type, gamete_cont_type_allocator> &gametes,
-      //haploid_vector_type<haploid_geno_t, haploid_vector_type_allocator> &haploids,
-      //mutation_cont_type<mutation_type, mutation_cont_type_allocator> &mutations,
-      //std::vector<uint_t> &mcounts,
       const uint_t &N1,
       const uint_t &N2,
       const double m12,
@@ -68,8 +64,6 @@ void sample_haploid_struct_indmig(
       const mutation_model &mmodel,
       const recombination_policy &rec_pol,
       const haploid_fitness_function &ff,
-      //typename gamete_type::mutation_container &neutral,
-      //typename gamete_type::mutation_container &selected,
       const double f = 0.,
       const mutation_removal_policy mp = mutation_removal_policy());
 
@@ -90,10 +84,6 @@ void sample_haploid_struct_recmig(
                                   // 12 args
                                   const gsl_rng *r,
                                   structpop_t &pop,
-                                  //gamete_cont_type<gamete_type, gamete_cont_type_allocator> &gametes,
-                                  //haploid_vector_type<haploid_geno_t, haploid_vector_type_allocator> &haploids,
-                                  //mutation_cont_type<mutation_type, mutation_cont_type_allocator> &mutations,
-                                  //std::vector<uint_t> &mcounts,
                                   const uint_t &N1,
                                   const uint_t &N2,
                                   const double m12,
@@ -102,10 +92,60 @@ void sample_haploid_struct_recmig(
                                   const mutation_model &mmodel,
                                   const recombination_policy &rec_pol,
                                   const haploid_fitness_function &ff,
-                                  //typename gamete_type::mutation_container &neutral,
-                                  //typename gamete_type::mutation_container &selected,
                                   const double f = 0.,
                                   const mutation_removal_policy mp = mutation_removal_policy());
+
+//
+// For structured deme, migration only from interpopulation recombination
+// migration only happens after ngenMig generations
+//
+template <typename structpoptype,
+typename haploid_fitness_function, typename mutation_model,
+typename recombination_policy,
+typename mutation_removal_policy = std::true_type>
+void
+sample_haploid_struct_delayed_recmig(
+                                     //14 args
+                                     const gsl_rng *r,
+                                     structpoptype &pop,
+                                     const uint_t &N1,
+                                     const uint_t &N2,
+                                     const double m12,
+                                     const double m21,
+                                     const double &mu,
+                                     const mutation_model &mmodel,
+                                     const recombination_policy &rec_pol,
+                                     const unsigned &gen,
+                                     const unsigned &ngenMig,
+                                     const haploid_fitness_function &ff,
+                                     const double f = 0.,
+                                     const mutation_removal_policy mp = mutation_removal_policy()) ;
+
+//
+// For structured deme, migration only from interpopulation recombination
+// migration only happens before ngenMig generations
+//
+template <typename structpoptype,
+typename haploid_fitness_function, typename mutation_model,
+typename recombination_policy,
+typename mutation_removal_policy = std::true_type>
+void
+sample_haploid_struct_disrupted_recmig(
+                                       //14 args
+                                       const gsl_rng *r,
+                                       structpoptype &pop,
+                                       const uint_t &N1,
+                                       const uint_t &N2,
+                                       const double m12,
+                                       const double m21,
+                                       const double &mu,
+                                       const mutation_model &mmodel,
+                                       const recombination_policy &rec_pol,
+                                       const unsigned &gen,
+                                       const unsigned &ngenMig,
+                                       const haploid_fitness_function &ff,
+                                       const double f = 0.,
+                                       const mutation_removal_policy mp = mutation_removal_policy()) ;
 
 
 // this needs to be included after, o.w. compiler doesnt like adding defaults to
