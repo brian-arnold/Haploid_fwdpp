@@ -81,7 +81,7 @@ main(int argc, char **argv)
     std::ofstream results2 ;
     results2.open(filename3.c_str()) ;
     results2.precision(10) ;
-    // File to print main output, N2 pop
+    // File to print main output, N1+N2 pop
     std::string filename4 = "resultsboth.txt" ;
     std::ofstream resultsboth ;
     resultsboth.open(filename4.c_str()) ;
