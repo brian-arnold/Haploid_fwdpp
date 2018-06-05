@@ -1,6 +1,6 @@
 /*!
   Simulate a structured, finite Wright-Fisher population with mutation,
-  recombination, and selection. Migration only occurs after ngenMig
+  recombination, and selection. Migration only occurs before ngenMig
   generations
 
 */
@@ -147,7 +147,7 @@ main(int argc, char **argv)
             for (generation = 0; generation < ngens; ++generation)
                 {
                     // Iterate the population through 1 generation
-                    sample_haploid_struct_disrupted_recmig(
+                    sample_haploid_struct_disrupted_indmig(
                         r.get(),
                         pop,
                         N1,     // Popsize deme1

@@ -67,6 +67,31 @@ void sample_haploid_struct_indmig(
       const double f = 0.,
       const mutation_removal_policy mp = mutation_removal_policy());
 
+//
+// For structured deme, whole individuals migrate, includes haploid vector
+//
+template <typename structpoptype,
+typename haploid_fitness_function, typename mutation_model,
+typename recombination_policy,
+typename mutation_removal_policy = std::true_type>
+void
+sample_haploid_struct_disrupted_indmig(
+                                       //14 args
+                                       const gsl_rng *r,
+                                       structpoptype &pop,
+                                       const uint_t &N1,
+                                       const uint_t &N2,
+                                       double m12,
+                                       double m21,
+                                       const double &mu,
+                                       const mutation_model &mmodel,
+                                       const recombination_policy &rec_pol,
+                                       const unsigned &gen,
+                                       const unsigned &ngenMig,
+                                       const haploid_fitness_function &ff,
+                                       const double f = 0.,
+                                       const mutation_removal_policy mp = mutation_removal_policy());
+
 
 //
 // For structured deme, migration only from interpopulation recombination
