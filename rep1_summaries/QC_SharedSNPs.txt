@@ -1,0 +1,26 @@
+SampleSize_resultsFile: 100
+######## number of individuals with seqs
+N1	100
+N2	100
+Num segsites N1	1693
+Num segsites N2	1673
+Num SelPos	0
+Segsites_Total_hash b4 filter: 2625
+Segsites_Total b4 filter: 2625
+Segsites_Total aft filter: 2555
+segsites b4 and after filtering 
+1693	1649
+1673	1626
+numGenesPerQuantile	158.2
+Quantile	Mean
+2	0.00903919089759798
+4	0.0252844500632111
+1	0
+0	0
+3	0.0111883691529709
+@count_Syn elements: 1649
+@count_NonSyn elements: 0
+AVG LD SYN WITHIN GENE: 0.00119508086253369
+AVG LD NONSYN WITHIN GENE: NA
+AVG LD SYN BETWEEN GENE:	4.57601774556092e-05
+AVG LD NONSYN BETWEEN GENE:	NA
