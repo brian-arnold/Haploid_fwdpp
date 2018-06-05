@@ -53,20 +53,41 @@ template <typename gamete_type, typename gamete_cont_type_allocator,
             template <typename, typename> class haploid_vector_type,
             typename mutation_removal_policy = std::true_type>
 void sample_haploid_struct_indmig(
-      // 12 args
-      const gsl_rng *r,
-      structpop_t &pop,
-      const uint_t &N1,
-      const uint_t &N2,
-      const double m12,
-      const double m21,
-      const double &mu,
-      const mutation_model &mmodel,
-      const recombination_policy &rec_pol,
-      const haploid_fitness_function &ff,
-      const double f = 0.,
-      const mutation_removal_policy mp = mutation_removal_policy());
+                              // 12 args
+                              const gsl_rng *r,
+                              structpop_t &pop,
+                              const uint_t &N1,
+                              const uint_t &N2,
+                              const double m12,
+                              const double m21,
+                              const double &mu,
+                              const mutation_model &mmodel,
+                              const recombination_policy &rec_pol,
+                              const haploid_fitness_function &ff,
+                              const double f = 0.,
+                              const mutation_removal_policy mp = mutation_removal_policy());
 
+template <typename structpoptype,
+typename haploid_fitness_function, typename mutation_model,
+typename recombination_policy,
+typename mutation_removal_policy = std::true_type>
+void
+sample_haploid_struct_disrupted_indmig(
+                                   //14 args
+                                   const gsl_rng *r,
+                                   structpoptype &pop,
+                                   const uint_t &N1,
+                                   const uint_t &N2,
+                                   const double m12,
+                                   const double m21,
+                                   const double &mu,
+                                   const mutation_model &mmodel,
+                                   const recombination_policy &rec_pol,
+                                   const unsigned &gen,
+                                   const unsigned &ngenMig,
+                                   const haploid_fitness_function &ff,
+                                   const double f = 0.,
+                                   const mutation_removal_policy mp = mutation_removal_policy());
 
 //
 // For structured deme, migration only from interpopulation recombination
