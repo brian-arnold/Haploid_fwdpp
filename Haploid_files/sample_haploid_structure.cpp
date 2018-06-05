@@ -35,10 +35,6 @@ sample_haploid_struct_indmig(
     //12 args
    const gsl_rng *r,
    structpoptype &pop,
-   //gamete_cont_type<gamete_type, gamete_cont_type_allocator> &gametes,
-   //haploid_vector_type<haploid_geno_t, haploid_vector_type_allocator> &haploids,
-   //mutation_cont_type<mutation_type, mutation_cont_type_allocator> &mutations,
-   //std::vector<uint_t> &mcounts,
    const uint_t &N1,
    const uint_t &N2,
    const double m12,
@@ -47,8 +43,6 @@ sample_haploid_struct_indmig(
    const mutation_model &mmodel,
    const recombination_policy &rec_pol,
    const haploid_fitness_function &ff,
-   //typename gamete_type::mutation_container &neutral,
-   //typename gamete_type::mutation_container &selected,
    const double f = 0.,
    const mutation_removal_policy mp = mutation_removal_policy())
 {
@@ -227,21 +221,6 @@ sample_haploid_struct_recmig(
                              const double f = 0.,
                              const mutation_removal_policy mp = mutation_removal_policy())
 {
-    /*
-     The main part of fwdpp does not throw exceptions.
-     Rather, testing is performed via C's assert macro.
-     This macro should be disabled in "production" builds via
-     -DNEBUG as is standard practice.  It is the developer's
-     responsibility to properly set up a build system to distinguish
-     'debug' from 'production' builds.
-     
-     More complex debugging blocks will be wrapped in #ifndef
-     NDEBUG/#endif
-     blocks as needed.
-     
-     Compiling in a 'debug' mode slows simulations down several-fold.
-     */
-    
     // DEBUG
     /*
      assert(happopdata_sane(pop.haploids, pop.gametes, pop.mutations, pop.mcounts));
@@ -249,26 +228,6 @@ sample_haploid_struct_recmig(
      assert(check_sum(pop.gametes, (N1 + N2)));
      */
     
-    /*
-     The mutation and gamete containers contain both extinct and extant
-     objects.
-     The former are useful b/c the represent already-allocated memory.
-     The library
-     uses these extinct objects to 'recycle' them into new objects.  The
-     function calls
-     below create FIFO queues of where extinct objects are.  These queues
-     are passed to
-     mutation and recombination functions and used to decide if recyling
-     is possible or
-     if a new object needs to be 'emplace-back'-ed into a container.
-     
-     The type of the FIFO queue is abstracted with the name
-     fwdpp::fwdpp_internal::recycling_bin_t,
-     which is a C++11 template alias.
-     
-     The details of recycling are implemented in
-     fwdpp/internal/recycling.hpp
-     */
     auto mut_recycling_bin = fwdpp_internal::make_mut_queue(pop.mcounts);
     // this tags gametes with n=0 for recycling; b4 they're marked as 0 during fitness calc
     auto gam_recycling_bin = fwdpp_internal::make_gamete_queue(pop.gametes);
@@ -342,22 +301,6 @@ sample_haploid_struct_recmig(
      }
      */
     
-    /*
-     At the end of the above loop, we have a bunch of new diploids
-     that are all recombined and mutated sampling of the parental
-     generation.
-     
-     Our problem is that we no longer know how many times each mutation is
-     present, which
-     is corrected by the following call.
-     
-     Although the implementation of process_gametes is super-trivial, it
-     is actually the
-     most computationally-expensive part of a simulation once mutation
-     rates are large.
-     
-     The implementation is in fwdpp/internal/sample_diploid_helpers.hpp
-     */
     fwdpp_internal::process_gametes(pop.gametes, pop.mutations, pop.mcounts);
     assert(pop.mcounts.size() == pop.mutations.size());
     
@@ -370,15 +313,8 @@ sample_haploid_struct_recmig(
      assert(happopdata_sane(pop.haploids, pop.gametes, pop.mutations, pop.mcounts));
      */
     
-    /*
-     The last thing to do is handle fixations.  In many contexts, we
-     neither want nor need
-     to keep indexes to fixed variants in our gametes.  Such decisions are
-     implemented via
-     simple policies, which are in the variable 'mp'.
-     
-     The implementation is in fwdpp/internal/gamete_cleaner.hpp.
-     */
+    
+     //The last thing to do is handle fixations.
     fwdpp_internal::gamete_cleaner(pop.gametes, pop.mutations, pop.mcounts, (N1 + N2),
                                    mp);
 }
@@ -395,10 +331,6 @@ sample_haploid_struct_delayed_recmig(
                              //14 args
                              const gsl_rng *r,
                              structpoptype &pop,
-                             //gamete_cont_type<gamete_type, gamete_cont_type_allocator> &gametes,
-                             //haploid_vector_type<haploid_geno_t, haploid_vector_type_allocator> &haploids,
-                             //mutation_cont_type<mutation_type, mutation_cont_type_allocator> &mutations,
-                             //std::vector<uint_t> &mcounts,
                              const uint_t &N1,
                              const uint_t &N2,
                              const double m12,
@@ -409,26 +341,9 @@ sample_haploid_struct_delayed_recmig(
                              const unsigned &gen,
                              const unsigned &ngenMig,
                              const haploid_fitness_function &ff,
-                             //typename gamete_type::mutation_container &neutral,
-                             //typename gamete_type::mutation_container &selected,
                              const double f = 0.,
                              const mutation_removal_policy mp = mutation_removal_policy())
 {
-    /*
-     The main part of fwdpp does not throw exceptions.
-     Rather, testing is performed via C's assert macro.
-     This macro should be disabled in "production" builds via
-     -DNEBUG as is standard practice.  It is the developer's
-     responsibility to properly set up a build system to distinguish
-     'debug' from 'production' builds.
-     
-     More complex debugging blocks will be wrapped in #ifndef
-     NDEBUG/#endif
-     blocks as needed.
-     
-     Compiling in a 'debug' mode slows simulations down several-fold.
-     */
-    
     // DEBUG
     /*
      assert(happopdata_sane(pop.haploids, pop.gametes, pop.mutations, pop.mcounts));
@@ -436,26 +351,6 @@ sample_haploid_struct_delayed_recmig(
      assert(check_sum(pop.gametes, (N1 + N2)));
      */
     
-    /*
-     The mutation and gamete containers contain both extinct and extant
-     objects.
-     The former are useful b/c the represent already-allocated memory.
-     The library
-     uses these extinct objects to 'recycle' them into new objects.  The
-     function calls
-     below create FIFO queues of where extinct objects are.  These queues
-     are passed to
-     mutation and recombination functions and used to decide if recyling
-     is possible or
-     if a new object needs to be 'emplace-back'-ed into a container.
-     
-     The type of the FIFO queue is abstracted with the name
-     fwdpp::fwdpp_internal::recycling_bin_t,
-     which is a C++11 template alias.
-     
-     The details of recycling are implemented in
-     fwdpp/internal/recycling.hpp
-     */
     auto mut_recycling_bin = fwdpp_internal::make_mut_queue(pop.mcounts);
     // this tags gametes with n=0 for recycling; b4 they're marked as 0 during fitness calc
     auto gam_recycling_bin = fwdpp_internal::make_gamete_queue(pop.gametes);
@@ -530,22 +425,6 @@ sample_haploid_struct_delayed_recmig(
      }
      */
     
-    /*
-     At the end of the above loop, we have a bunch of new diploids
-     that are all recombined and mutated sampling of the parental
-     generation.
-     
-     Our problem is that we no longer know how many times each mutation is
-     present, which
-     is corrected by the following call.
-     
-     Although the implementation of process_gametes is super-trivial, it
-     is actually the
-     most computationally-expensive part of a simulation once mutation
-     rates are large.
-     
-     The implementation is in fwdpp/internal/sample_diploid_helpers.hpp
-     */
     fwdpp_internal::process_gametes(pop.gametes, pop.mutations, pop.mcounts);
     assert(pop.mcounts.size() == pop.mutations.size());
     
@@ -558,15 +437,7 @@ sample_haploid_struct_delayed_recmig(
      assert(happopdata_sane(pop.haploids, pop.gametes, pop.mutations, pop.mcounts));
      */
     
-    /*
-     The last thing to do is handle fixations.  In many contexts, we
-     neither want nor need
-     to keep indexes to fixed variants in our gametes.  Such decisions are
-     implemented via
-     simple policies, which are in the variable 'mp'.
-     
-     The implementation is in fwdpp/internal/gamete_cleaner.hpp.
-     */
+    //The last thing to do is handle fixations.
     fwdpp_internal::gamete_cleaner(pop.gametes, pop.mutations, pop.mcounts, (N1 + N2),
                                    mp);
 }
@@ -584,10 +455,6 @@ sample_haploid_struct_disrupted_recmig(
                                      //14 args
                                      const gsl_rng *r,
                                      structpoptype &pop,
-                                     //gamete_cont_type<gamete_type, gamete_cont_type_allocator> &gametes,
-                                     //haploid_vector_type<haploid_geno_t, haploid_vector_type_allocator> &haploids,
-                                     //mutation_cont_type<mutation_type, mutation_cont_type_allocator> &mutations,
-                                     //std::vector<uint_t> &mcounts,
                                      const uint_t &N1,
                                      const uint_t &N2,
                                      const double m12,
@@ -598,52 +465,14 @@ sample_haploid_struct_disrupted_recmig(
                                      const unsigned &gen,
                                      const unsigned &ngenMig,
                                      const haploid_fitness_function &ff,
-                                     //typename gamete_type::mutation_container &neutral,
-                                     //typename gamete_type::mutation_container &selected,
                                      const double f = 0.,
                                      const mutation_removal_policy mp = mutation_removal_policy())
 {
-    /*
-     The main part of fwdpp does not throw exceptions.
-     Rather, testing is performed via C's assert macro.
-     This macro should be disabled in "production" builds via
-     -DNEBUG as is standard practice.  It is the developer's
-     responsibility to properly set up a build system to distinguish
-     'debug' from 'production' builds.
-     
-     More complex debugging blocks will be wrapped in #ifndef
-     NDEBUG/#endif
-     blocks as needed.
-     
-     Compiling in a 'debug' mode slows simulations down several-fold.
-     */
-    
     // DEBUG
     /*
      assert(happopdata_sane(pop.haploids, pop.gametes, pop.mutations, pop.mcounts));
      assert(pop.mcounts.size() == pop.mutations.size());
      assert(check_sum(pop.gametes, (N1 + N2)));
-     */
-    
-    /*
-     The mutation and gamete containers contain both extinct and extant
-     objects.
-     The former are useful b/c the represent already-allocated memory.
-     The library
-     uses these extinct objects to 'recycle' them into new objects.  The
-     function calls
-     below create FIFO queues of where extinct objects are.  These queues
-     are passed to
-     mutation and recombination functions and used to decide if recyling
-     is possible or
-     if a new object needs to be 'emplace-back'-ed into a container.
-     
-     The type of the FIFO queue is abstracted with the name
-     fwdpp::fwdpp_internal::recycling_bin_t,
-     which is a C++11 template alias.
-     
-     The details of recycling are implemented in
-     fwdpp/internal/recycling.hpp
      */
     auto mut_recycling_bin = fwdpp_internal::make_mut_queue(pop.mcounts);
     // this tags gametes with n=0 for recycling; b4 they're marked as 0 during fitness calc
@@ -719,22 +548,6 @@ sample_haploid_struct_disrupted_recmig(
      }
      */
     
-    /*
-     At the end of the above loop, we have a bunch of new diploids
-     that are all recombined and mutated sampling of the parental
-     generation.
-     
-     Our problem is that we no longer know how many times each mutation is
-     present, which
-     is corrected by the following call.
-     
-     Although the implementation of process_gametes is super-trivial, it
-     is actually the
-     most computationally-expensive part of a simulation once mutation
-     rates are large.
-     
-     The implementation is in fwdpp/internal/sample_diploid_helpers.hpp
-     */
     fwdpp_internal::process_gametes(pop.gametes, pop.mutations, pop.mcounts);
     assert(pop.mcounts.size() == pop.mutations.size());
     
@@ -747,15 +560,6 @@ sample_haploid_struct_disrupted_recmig(
      assert(happopdata_sane(pop.haploids, pop.gametes, pop.mutations, pop.mcounts));
      */
     
-    /*
-     The last thing to do is handle fixations.  In many contexts, we
-     neither want nor need
-     to keep indexes to fixed variants in our gametes.  Such decisions are
-     implemented via
-     simple policies, which are in the variable 'mp'.
-     
-     The implementation is in fwdpp/internal/gamete_cleaner.hpp.
-     */
     fwdpp_internal::gamete_cleaner(pop.gametes, pop.mutations, pop.mcounts, (N1 + N2),
                                    mp);
 }
