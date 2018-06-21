@@ -14,7 +14,14 @@ my %AvgDprime_withinGene_byQuantile ;
 my %AvgDprime_betweenGene_byQuantile ;
 
 foreach my $rep ( 1..$reps ){
-	open IN, "<./rep${rep}_summaries/QC.txt" ;
+	if(-e "./rep${rep}_summaries/QC.txt"){
+		open IN, "<./rep${rep}_summaries/QC.txt" ;
+	}elsif(-e "./rep${rep}_summaries/QC_SharedSNPs.txt"){
+		open IN, "<./rep${rep}_summaries/QC_SharedSNPs.txt" ;
+	}else{
+		print "Couldn't open QC file\n" ;
+		exit ;
+	}
 	while(<IN>){
 		chomp $_ ;
 		if($_ =~ m/AVG LD SYN WITHIN GENE/){
@@ -165,5 +172,3 @@ close OUT ;
 
 
 exit ;
-
-

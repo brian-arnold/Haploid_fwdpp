@@ -24,6 +24,8 @@ unless(-e "rep${rep}_summaries"){
 	system("mkdir rep${rep}_summaries") ;
 }
 open QC, ">./rep${rep}_summaries/QC_bootstrapLD.txt" ;
+print QC "Gene size used: ", $gene_size, "\n" ;
+print QC "Quantiles used: ", $quantiles, "\n" ;
 
 my $pop_size ;
 my $Sample_size ;
@@ -602,10 +604,6 @@ close OUTBETWEEN ;
 	
 
 exit ;
-
-
-
-
 
 
 

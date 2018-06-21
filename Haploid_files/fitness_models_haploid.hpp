@@ -149,4 +149,40 @@ struct pop_pos_seln_multiplicative
     }
 };
 
+/*
+class nfds_two_pop
+{
+private:
+    double N1 ; // populaiton size, double b/c
+    double N2 ;
+    double eq ; // equilibrium frequency of selected mutations
+public:
+    
+    // Constructor
+    explicit nfds(const uint_t &popsize1, const uint_t &popsize2, const double equilibrium_freq) :
+    N1(static_cast<double>(popsize1)), N2(static_cast<double>(popsize2)), eq(equilibrium_freq)
+    {
+    }
+    
+    template<typename gamete_type, typename mtype>
+    // function has to be const! in template declaration, functor labelled as const
+    // thus, any attempt to change a member variable or call non-const member function
+    // results in compiler error
+    inline double
+    operator()(const gamete_type &g, const std::vector<mtype> &mutations, const std::vector<uint_t> &mcounts, const int deme) const noexcept
+    {
+        double product = 1.0 ;
+        for(const std::uint32_t &key : g.smutations){
+            if(deme==0){
+                product *= (1.0 + mutations[key].s*((eq - static_cast<double>(mcounts[key])/N1)/eq)) ;
+                //product *= pow( (1.0 + mutations[key].s), (eq - static_cast<double>(mcounts[key])/N)/eq ) ;
+            }else{
+                product *= (1.0 + mutations[key].s*((eq - static_cast<double>(mcounts[key])/N2)/eq)) ;
+            }
+        }
+        return std::max(0., product);
+    }
+};
+*/
+
 #endif
