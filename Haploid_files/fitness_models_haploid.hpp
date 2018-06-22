@@ -153,7 +153,40 @@ struct pop_pos_seln_multiplicative
     }
 };
 
-/*  
+
+class pop_pos_seln_synepistasis
+{
+private:
+    double b ; // pairwise epistasis coefficient
+    double s ; // selection coefficient
+public:
+    // Constructor
+    explicit pop_pos_seln_synepistasis(const double sel, const double beta) :
+    s(sel), b(beta)
+    {
+    }
+    
+    template<typename gamete_type, typename mtype>
+    // function has to be const! in template declaration, functor labelled as const
+    // thus, any attempt to change a member variable or call non-const member function
+    // results in compiler error
+    inline double
+    operator()(const gamete_type &g, const std::vector<mtype> &mutations, const int deme) const noexcept
+    {
+        double muts = 0.0 ;
+        double fitness ;
+        for(const std::uint32_t &key : g.smutations){
+            muts += 1.0 ;
+        }
+        //fitness = 1.0 - (s*muts) - b*(muts*(muts-1.0)/2.0) ;
+        fitness = exp((s*muts) + b*(muts*(muts-1.0)/2.0)) ;
+        //std::cout << fitness << "\n" ;
+        return std::max(0., fitness);
+    }
+};
+
+
+/*
 // GOAL HERE IS TO DO A POP SPECIFIC NFDS, BUT YOU'D NEED TO CHANGE OTHER FUNCTIONS TO ALSO TAKE
  // MCOUNTS ARG UNLESS YOU WANT TO MAKE A SEPARATE SAMPLING FUNCTION JUST FOR NFDS
 // BEFORE THIS CAN BE IMPLEMENTED, YOU NEED A STRUCTURE THAT KEEPS TRACK OF MCOUNTS PER POPULATION
