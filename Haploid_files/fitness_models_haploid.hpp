@@ -59,6 +59,7 @@ public:
         }
         //fitness = 1.0 - (s*muts) - b*(muts*(muts-1.0)/2.0) ;
         fitness = exp(-(s*muts) - b*(muts*(muts-1.0)/2.0)) ;
+        //std::cout << fitness << "\n" ;
         return std::max(0., fitness);
     }
 };

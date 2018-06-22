@@ -22,10 +22,13 @@
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
 
+//
 // headers from fwdpp
+//
 #include <fwdpp/type_traits.hpp>
 #include <fwdpp/debug.hpp>
 #include <fwdpp/forward_types.hpp>
+    // ^ defines mutation_base, mutation, gamete_base, and gamete
 #include <fwdpp/fwd_functional.hpp>
 #include <fwdpp/insertion_policies.hpp>
 #include <fwdpp/sampling_functions.hpp>

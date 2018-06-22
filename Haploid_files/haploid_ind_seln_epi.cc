@@ -1,7 +1,10 @@
 /*! \include diploid_ind.cc
   Simulate a single, finite Wright-Fisher haploid population with mutation,
-  recombination, and selection.
-
+  recombination, and selection with epistasis.
+ 
+ ****
+ NOTE: as it stands, mutations need to have nonzero s in order to get put into smutations container
+ ****
 */
 #include <iostream>
 #include <fstream>
