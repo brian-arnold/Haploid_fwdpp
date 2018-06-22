@@ -21,10 +21,10 @@ using mtype = fwdpp::popgenmut;
 int
 main(int argc, char **argv)
 {
-    if (argc != 12)
+    if (argc != 13)
         {
             std::cerr << "Too few arguments\n"
-                      << "Usage: diploid_ind N theta_neutral rho fragsize meantrlen ngens samplesize "
+                      << "Usage: haploid_ind_seln_epi N theta_neutral theta_sel rho fragsize meantrlen s s_epi ngens samplesize1 "
                          "nreps seed\n";
             exit(0);
         }
@@ -36,6 +36,7 @@ main(int argc, char **argv)
     const double fragsize = (atof(argv[argument++])); // Size of DNA frag, for homologous rec
     const double meantrlen = (atof(argv[argument++])); // mean tract length of DNA transferred
     const double s = atof(argv[argument++]);
+    const double s_epi = atof(argv[argument++]);
     const unsigned ngens = unsigned(atoi(argv[argument++])); // Number of generations to simulate
     const unsigned samplesize1 = unsigned(atoi(argv[argument++])); // Sample size to draw from the population
     int nreps = atoi(argv[argument++]); // Number of replicates to simulate
@@ -98,8 +99,7 @@ main(int argc, char **argv)
     begin = time(0);
     
     // initialize nfds fitness function with pop size and equilibrium freq
-    nfds nfds_func(N, 0.5) ;
-    quadratic_synepistasis_negseln epi(s, s/10.0) ;
+    quadratic_synepistasis_negseln ffepi(s, s_epi) ;
     
     while (nreps--)
         {
@@ -163,7 +163,7 @@ main(int argc, char **argv)
                         Fitness function, can only pass pointers to functions
                          or function objects
                         */
-                        epi,
+                        ffepi,
                         pop.neutral,
                         pop.selected);
                         // 2 more args in template defn but they have defaults

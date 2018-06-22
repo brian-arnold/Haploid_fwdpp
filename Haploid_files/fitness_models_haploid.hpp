@@ -11,6 +11,9 @@
 
 using namespace fwdpp ;
 
+//
+// FITNESS FUNCTIONS FOR SINGLE POPULATION
+//
 struct multiplicative_negseln_haploid
 {
     
@@ -61,7 +64,6 @@ public:
 };
 
 
-
 class nfds
 {
   private:
@@ -93,8 +95,9 @@ class nfds
 
 
 
-
+//
 // FITNESS FUNCTIONS FOR 2 POPULATIONS
+//
 struct pop_sign_seln_multiplicative
 {
     // demes have opposite selection pressures, positive in deme0, negative in deme1
@@ -149,7 +152,10 @@ struct pop_pos_seln_multiplicative
     }
 };
 
-/*
+/*  
+// GOAL HERE IS TO DO A POP SPECIFIC NFDS, BUT YOU'D NEED TO CHANGE OTHER FUNCTIONS TO ALSO TAKE
+ // MCOUNTS ARG UNLESS YOU WANT TO MAKE A SEPARATE SAMPLING FUNCTION JUST FOR NFDS
+// BEFORE THIS CAN BE IMPLEMENTED, YOU NEED A STRUCTURE THAT KEEPS TRACK OF MCOUNTS PER POPULATION
 class nfds_two_pop
 {
 private:
@@ -173,9 +179,8 @@ public:
     {
         double product = 1.0 ;
         for(const std::uint32_t &key : g.smutations){
-            if(deme==0){
+            if(deme==0){ // 
                 product *= (1.0 + mutations[key].s*((eq - static_cast<double>(mcounts[key])/N1)/eq)) ;
-                //product *= pow( (1.0 + mutations[key].s), (eq - static_cast<double>(mcounts[key])/N)/eq ) ;
             }else{
                 product *= (1.0 + mutations[key].s*((eq - static_cast<double>(mcounts[key])/N2)/eq)) ;
             }
