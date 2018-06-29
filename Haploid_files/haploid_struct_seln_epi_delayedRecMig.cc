@@ -223,7 +223,6 @@ main(int argc, char **argv)
                     neutpos << pop.mutations[i].pos << ":" << pop.mutations[i].g << ":" << pop.mcounts[i] <<  "\n" ;
                 }
             }
-
         }
     end = time(0);
     int TimeTaken = int(difftime(end,begin)) ;

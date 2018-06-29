@@ -88,7 +88,12 @@ main(int argc, char **argv)
     std::ofstream selpos ;
     selpos.open(filename4.c_str()) ;
     selpos.precision(10) ;
-
+    // File to print neutral positions
+    std::string filename5 = "neutral_pos.txt" ;
+    std::ofstream neutpos ;
+    neutpos.open(filename5.c_str()) ;
+    neutpos.precision(10) ;
+    
     // Write the command line to output file
     std::copy(argv, argv + argc, std::ostream_iterator<char *>(results, " "));
     results << '\n';
@@ -206,12 +211,15 @@ main(int argc, char **argv)
             //print file of positions under selection
             selpos << "//\n" ;
             selpos << "SELECTED POSITIONS (pos:gen:freq)\n" ;
+            neutpos << "//\n" ;
+            neutpos << "NEUTRAL POSITIONS (pos:gen:freq)\n" ;
             for(int i=0; i<pop.mutations.size(); i++ ){
                 if(pop.mutations[i].s){
                     selpos << pop.mutations[i].pos << ":" << pop.mutations[i].g << ":" << pop.mcounts[i] <<  "\n" ;
+                }else{
+                    neutpos << pop.mutations[i].pos << ":" << pop.mutations[i].g << ":" << pop.mcounts[i] <<  "\n" ;
                 }
             }
-
         }
     end = time(0);
     int TimeTaken = int(difftime(end,begin)) ;

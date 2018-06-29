@@ -93,7 +93,7 @@ main(int argc, char **argv)
     std::ofstream selpos ;
     selpos.open(filename5.c_str()) ;
     selpos.precision(10) ;
-
+    
     // Write the command line to output file
     std::copy(argv, argv + argc, std::ostream_iterator<char *>(results, " "));
     results << '\n';
