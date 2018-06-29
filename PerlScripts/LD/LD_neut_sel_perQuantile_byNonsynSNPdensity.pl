@@ -13,8 +13,8 @@ use List::Util qw(first max maxstr min minstr reduce shuffle sum) ;
 my $results_file = $ARGV[0] ;
 my $selpos_file = $ARGV[1] ;
 my $rep = $ARGV[2] ;
-my $gene_size = 1000 ;
-my $quantiles = 1 ;
+my $gene_size =  $ARGV[3] ;
+my $quantiles = $ARGV[4] ;
 unless(-e "rep${rep}_summaries"){
 	system("mkdir rep${rep}_summaries") ;
 }
@@ -51,8 +51,11 @@ my %Segsites_Bi_PosInChromo; ; # $Segsites{index} = site ;
 my %Segsites_Bi_PosInGenostring ; # for mapping back to positin in string of 0's and 1's
 my %AFS ; # $AFS{1}{site} = AF ; 
 my %AFS_forPrinting ;
+my %Pairwise_Dprime  ; # $Pairwise_Dprime{site1}{site2} = D' ;
 
 my %SumStat_Results ;
+my %PairWise_LD_vs_dist ;
+my %PairWise_PC_vs_dist ;
 
 my %SelPos ;
 my %SelPos_tmphash ;
@@ -79,6 +82,12 @@ while(<IN>){
 		my @line = split(" ", $_) ;
 		$Sample_size = $line[9] ;
 		$num_reps = $line[10] ;
+		$num_sites = $line[5] ;
+	}
+	if($_ =~ m/haploid_ind_seln_epi/ ){ # command used with arguments
+		my @line = split(" ", $_) ;
+		$Sample_size = $line[10] ;
+		$num_reps = $line[11] ;
 		$num_sites = $line[5] ;
 	}
 	if($_ =~ m/ms/ ){ # command used with arguments
@@ -610,5 +619,4 @@ close QC ;
 
 
 exit ;
-
 
