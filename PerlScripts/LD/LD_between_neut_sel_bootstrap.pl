@@ -107,7 +107,7 @@ while(<IN>){
 		$num_sites = $line[7] ;
 		$TrLen = $line[8] ;
 	}
-	if($_ =~ m/haploid_struct_seln/ ){ # command used with arguments
+	if($_ =~ m/haploid_struct_seln/ || $_ =~ m/haploid_struct_signseln/){ # command used with arguments
 		my @line = split(" ", $_) ;
 		$Sample_size = $line[12] ;
 		$num_reps = $line[13] ;
