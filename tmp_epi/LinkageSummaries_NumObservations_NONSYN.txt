@@ -1,8 +1,0 @@
-NumbObservations:
-AvgD_withinGene_NONSYN	10
-AvgD_betweenGene_NONSYN	10
-AvgD_withinGene_byQuantile_NONSYN_QUANT0	10
-AvgDprime_withinGene_byQuantile_NONSYN0	10
-AvgD_betweenGene_byQuantile_NONSYN0	10
-AvgDprime_betweenGene_byQuantile_NONSYN0	10
-

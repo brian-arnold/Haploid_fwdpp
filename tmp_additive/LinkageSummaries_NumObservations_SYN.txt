@@ -1,8 +1,0 @@
-NumbObservations:
-AvgD_withinGene_SYN	10
-AvgD_betweenGene_SYN	10
-AvgD_withinGene_byQuantile_SYN_QUANT0	10
-AvgDprime_withinGene_byQuantile_SYN0	10
-AvgD_betweenGene_byQuantile_SYN0	10
-AvgDprime_betweenGene_byQuantile_SYN0	10
-
